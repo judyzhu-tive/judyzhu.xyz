@@ -673,6 +673,30 @@ body::before {
 .recipe-meta .tag.flavor-sweet   { background: #F8C3B7; }
 .recipe-meta .tag.flavor-sour    { background: #E6E4A8; }
 .recipe-meta .tag.surprise-tag   { background: var(--matcha); color: var(--matcha-deep); border-color: var(--matcha-deep); }
+.recipe-meta .tag.restriction-tag {
+  background: #EFE4D2;
+  color: var(--cocoa);
+  border: 1px dashed var(--cocoa-soft);
+}
+
+/* dietary swaps section */
+.recipe-section.subs {
+  background: linear-gradient(180deg, #F6F0DC 0%, #EFE4C8 100%);
+  border: 1.5px dashed var(--cocoa-soft);
+  border-radius: 12px;
+  padding: 12px 14px 10px;
+  margin-top: 14px;
+}
+.recipe-section.subs h3 {
+  color: var(--matcha-deep);
+  margin-bottom: 6px;
+}
+.recipe-section.subs ul {
+  padding-left: 18px;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.recipe-section.subs li::marker { color: var(--matcha-deep); }
 
 /* ─── footer ─── */
 .tiny-foot {

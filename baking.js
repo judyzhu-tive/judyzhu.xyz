@@ -1,5 +1,5 @@
-/* judy's bakery — chatbot flow v0.2
-   vanilla js. audio + expanded breads + surprises + speaker rotation. */
+/* judy's bakery — chatbot flow v0.3
+   vanilla js. audio + expanded breads + surprises + dietary restrictions. */
 
 (() => {
   const $dialog = document.getElementById('dialog-text');
@@ -37,6 +37,7 @@
     texture: 50,
     flavors: new Set(),
     size: null,
+    restrictions: new Set(),
   };
 
   // ─── typing effect ────────────────────────────────────────────────
@@ -243,7 +244,7 @@
     setProgress(3);
     setSpeaker('bag');
     clearChoices();
-    typeText("last one — how big should it be?\nlittle pop-in-mouth, or a loaf to tear and share?");
+    typeText("how big should it be?\nlittle pop-in-mouth, or a loaf to tear and share?");
 
     SIZES.forEach(s => {
       const btn = makeBtn({
@@ -253,7 +254,7 @@
         selected: state.size === s.id,
         onClick: () => {
           state.size = s.id;
-          setTimeout(() => stepRecipe(), 280);
+          setTimeout(() => stepRestrictions(), 280);
         },
       });
       $choices.appendChild(btn);
@@ -266,10 +267,67 @@
     row.querySelector('#size-back').addEventListener('click', () => { Audio.blip(); stepFlavor(); });
   }
 
-  // ─── step 4: recipe ───────────────────────────────────────────────
-  function stepRecipe() {
+  // ─── step 4: restrictions ─────────────────────────────────────────
+  const RESTRICTIONS = [
+    { id: 'gluten',   emoji: '🌾', label: 'gluten-free',   hint: 'wheat, rye, barley out' },
+    { id: 'dairy',    emoji: '🥛', label: 'dairy-free',    hint: 'milk, butter, cream out' },
+    { id: 'egg',      emoji: '🥚', label: 'egg-free',      hint: 'no eggs in dough or wash' },
+    { id: 'meat',     emoji: '🥩', label: 'meat-free',     hint: 'vegetarian friendly' },
+    { id: 'caffeine', emoji: '☕', label: 'caffeine-free', hint: 'no matcha, cocoa, coffee' },
+    { id: 'nut',      emoji: '🥜', label: 'nut-free',      hint: 'no walnut, almond' },
+  ];
+
+  function stepRestrictions() {
     state.step = 4;
     setProgress(4);
+    setSpeaker('anpan');
+    clearChoices();
+    typeText(
+      "one more thing — any allergies or things to skip?\n" +
+      "tap any that apply, or just hit bake ♡"
+    );
+
+    RESTRICTIONS.forEach(r => {
+      const selected = state.restrictions.has(r.id);
+      const btn = makeBtn({
+        emoji: r.emoji,
+        label: r.label,
+        hint: r.hint,
+        selected,
+        onClick: () => {
+          if (state.restrictions.has(r.id)) state.restrictions.delete(r.id);
+          else state.restrictions.add(r.id);
+          btn.classList.toggle('selected');
+          updateRestrictionsNext();
+        },
+      });
+      $choices.appendChild(btn);
+    });
+
+    const row = document.createElement('div');
+    row.className = 'confirm-row';
+    row.innerHTML = `
+      <button class="btn-ghost" id="res-back">‹ back</button>
+      <button class="btn-primary" id="res-next">bake ♡</button>
+    `;
+    $choices.appendChild(row);
+    row.querySelector('#res-back').addEventListener('click', () => { Audio.blip(); stepSize(); });
+    row.querySelector('#res-next').addEventListener('click', () => { Audio.blip(); stepRecipe(); });
+    updateRestrictionsNext();
+  }
+
+  function updateRestrictionsNext() {
+    const btn = document.getElementById('res-next');
+    if (!btn) return;
+    btn.textContent = state.restrictions.size === 0
+      ? 'bake! ♡ (no restrictions)'
+      : `bake with care! ♡ (${state.restrictions.size})`;
+  }
+
+  // ─── step 5: recipe ───────────────────────────────────────────────
+  function stepRecipe() {
+    state.step = 5;
+    setProgress(5);
     setSpeaker('cat');
     clearChoices();
     const r = generateRecipe(state);
@@ -297,11 +355,18 @@
         <ol>${r.method.map(x => `<li>${x}</li>`).join('')}</ol>
       </div>
 
+      ${r.subs.length ? `
+      <div class="recipe-section subs">
+        <h3>swaps for your diet</h3>
+        <ul>${r.subs.map(s => `<li>${s}</li>`).join('')}</ul>
+      </div>` : ''}
+
       <div class="recipe-meta">
         ${r.surprise ? `<span class="tag surprise-tag">${r.surprise}</span>` : ''}
         <span class="tag">${r.textureTag}</span>
         ${[...state.flavors].map(f => `<span class="tag flavor-${f}">${f}</span>`).join('')}
         <span class="tag">${r.sizeTag}</span>
+        ${[...state.restrictions].map(rr => `<span class="tag restriction-tag">${labelFor(rr)}</span>`).join('')}
         <span class="tag">bakes ${r.yield}</span>
       </div>
     `;
@@ -314,72 +379,90 @@
       <button class="btn-primary" id="r-again">bake another ♡</button>
     `;
     $choices.appendChild(row);
-    row.querySelector('#r-tweak').addEventListener('click', () => { Audio.blip(); stepSize(); });
+    row.querySelector('#r-tweak').addEventListener('click', () => { Audio.blip(); stepRestrictions(); });
     row.querySelector('#r-again').addEventListener('click', () => {
       Audio.blip();
       state.flavors = new Set();
       state.size = null;
       state.texture = 50;
+      state.restrictions = new Set();
       stepIntro();
     });
   }
 
+  function labelFor(id) {
+    const r = RESTRICTIONS.find(x => x.id === id);
+    return r ? r.label : id;
+  }
+
   // ─── bread bases (texture buckets) ─────────────────────────────────
+  // contains tags: gluten · dairy · egg · meat · caffeine · nut
   const BASES = {
     cloud: [
       { name: 'hokkaido milk toast', jp: '北海道食パン',
+        contains: ['gluten', 'dairy'],
         dough: 'yudane shokupan — flour scalded with boiling water rests overnight, then folded into an enriched milk dough. silky strands, paper-tearing crumb.',
         ingredients: 'bread flour 300g (60g for yudane + 240g) · boiling water 60g · milk 130g · cream 30g · sugar 30g · yeast 5g · butter 30g · salt 4g',
         method: 'whisk yudane (60g flour + 60g boiling water), chill overnight. next day combine all ingredients, knead 14 min until thin window. bulk 60 min, divide into 3, bench 15 min, shape & coil into a pullman tin. proof to 80% of tin, lid on, bake 200°C 30 min.' },
       { name: 'choux pastry', jp: 'シュー',
+        contains: ['gluten', 'dairy', 'egg'],
         dough: 'pâte à choux — cooked panade of milk, butter, flour, then beaten with eggs until glossy. pipe and bake to a hollow shell that begs for cream.',
         ingredients: 'milk 80g · water 80g · butter 70g · sugar 5g · salt 2g · flour 95g · eggs ~3 (160g)',
         method: 'boil milk + water + butter + sugar + salt. off heat, add flour, return to medium heat 2 min to dry. cool 5 min. beat in eggs one at a time until ribbon-glossy. pipe rounds on lined tray. bake 200°C 25 min, drop to 170°C 15 min — do not open the door. fill cooled.' },
     ],
     fuwafuwa: [
       { name: 'milk bread bun', jp: 'ミルクパン',
+        contains: ['gluten', 'dairy'],
         dough: 'tangzhong milk bread — small portion of flour cooked into a paste, locks in moisture for cloud-soft crumb.',
         ingredients: 'bread flour 280g · milk 130g · cream 30g · sugar 28g · yeast 4g · butter 28g · salt 4g',
         method: 'whisk tangzhong (20g flour + 90g milk into paste). combine all, knead 12 min to window-pane. proof 60 min, shape, final proof 50 min, bake 175°C 22 min.' },
     ],
     pillowy: [
       { name: 'brioche bun', jp: 'ブリオッシュ',
+        contains: ['gluten', 'dairy', 'egg'],
         dough: 'enriched brioche — slow cold proof for nutty depth, butter folded in late.',
         ingredients: 'bread flour 250g · egg 2 · milk 80g · sugar 30g · yeast 5g · butter 80g · salt 5g',
         method: 'mix flour, egg, milk, sugar, yeast. knead 10 min, gradually add butter. cold proof overnight. shape, proof 90 min, egg wash, bake 180°C 16 min.' },
       { name: 'melon pan', jp: 'メロンパン',
+        contains: ['gluten', 'dairy', 'egg'],
         dough: 'soft milk bun crowned with crackled cookie dough — japanese kissaten classic.',
         ingredients: 'bun: bread flour 240g · milk 130g · sugar 25g · yeast 4g · butter 25g · salt 3g. crust: flour 80g · butter 40g · sugar 50g · egg 1 · vanilla',
         method: 'mix & proof bun dough 60 min. divide 6. roll crust dough thin, drape over each bun, score crosshatch, sugar dust. proof 50 min, bake 170°C 14 min.' },
     ],
     laminated: [
       { name: 'croissant', jp: 'クロワッサン',
+        contains: ['gluten', 'dairy'],
         dough: 'laminated dough — détrempe wrapped around a butter block, three single folds for ~27 layers.',
         ingredients: 'bread flour 250g · water 110g · milk 50g · sugar 25g · yeast 6g · salt 5g · butter (in dough) 20g · butter block 140g',
         method: 'mix détrempe, chill 1 hr. shape butter block. enclose & roll long. fold single × 3, chill 30 min between folds. final roll 3mm, cut triangles, roll up. proof 22°C 2 hr, egg wash. bake 220°C 8 min then 190°C 10 min.' },
       { name: 'pâte feuilletée tartine', jp: 'パイ生地タルティーヌ',
+        contains: ['gluten', 'dairy'],
         dough: 'puff pastry base — classic 6 single turns. lean, snap-shatter layers.',
         ingredients: 'flour 250g · water 125g · salt 5g · butter (block) 200g',
         method: 'mix flour, water, salt. rest 30 min. enclose butter, single fold × 6 with 30-min rests. roll 3mm, cut rectangles, dock. bake on parchment + weighted tray 200°C 18 min, then uncovered 6 min until golden.' },
     ],
     tender: [
       { name: 'pain de mie', jp: 'パン・ド・ミ',
+        contains: ['gluten', 'dairy'],
         dough: 'open-crumb white pan loaf with a poolish for sweetness.',
         ingredients: 'bread flour 320g · water 200g · poolish 80g · yeast 3g · butter 16g · salt 6g',
         method: 'mix poolish night before. knead all 8 min, bulk 90 min with one fold. shape, proof 60 min, score, bake 220°C with steam then 200°C, total 28 min.' },
       { name: 'focaccia', jp: 'フォカッチャ',
+        contains: ['gluten'],
         dough: 'high-hydration olive oil bread with dimples that pool oil and salt.',
         ingredients: 'bread flour 400g · water 320g · yeast 3g · olive oil 30g + more · salt 8g · flaky salt to finish',
         method: 'mix, fold every 30 min × 4. cold proof 12–24 hr. press into oiled tray, dimple, drizzle oil, salt. proof 60 min. bake 240°C 18 min.' },
     ],
     rustic: [
       { name: 'pain de campagne', jp: 'カンパーニュ',
+        contains: ['gluten'],
         dough: 'country loaf — wild yeast, mostly white with a kiss of rye, deep crust.',
         ingredients: 'bread flour 360g · whole wheat 30g · rye 10g · water 300g · levain 80g · salt 8g',
         method: 'autolyse 40 min, add levain & salt. four folds over 3 hr. pre-shape, bench rest, shape into banneton. cold proof overnight. bake in dutch oven 250°C 20 min lid on, 230°C 22 min lid off.' },
     ],
     stodgy: [
       { name: 'baguette', jp: 'バゲット',
+        contains: ['gluten'],
         dough: 'lean baguette — flour, water, salt, yeast. long cold ferment, crackly crust.',
         ingredients: 'T65 flour 400g · water 280g · yeast 1g · salt 8g',
         method: 'mix, autolyse 30 min, add salt. fold every 30 min × 3. bulk 18 hr fridge. divide, pre-shape, rest 30 min. shape, proof on couche 50 min. score, bake 250°C with heavy steam, 20 min.' },
@@ -396,10 +479,65 @@
     return 'stodgy';
   }
 
-  // ─── surprise variants (Chinese · Greek) ──────────────────────────
+  // ─── flavor add-ins (tagged) ──────────────────────────────────────
+  const FLAVOR_ADDINS = {
+    savory: [
+      { t: 'cured ham 60g', c: ['meat'] },
+      { t: 'milk sausage 2 · grain mustard 1 tbsp', c: ['meat', 'dairy'] },
+      { t: 'comté or gouda 50g shredded', c: ['dairy'] },
+      { t: 'white miso 1 tsp + butter', c: ['dairy'] },
+      { t: 'crisp bacon 40g + black sesame', c: ['meat'] },
+      { t: 'corn kernels 40g + black pepper', c: [] },
+      { t: 'roasted miso eggplant 50g', c: [] },
+      { t: 'caramelized onion 40g + thyme', c: [] },
+      { t: 'sun-dried tomato 30g + olive oil + oregano', c: [] },
+      { t: 'olive tapenade 30g', c: [] },
+    ],
+    bitter: [
+      { t: 'matcha powder 6g (mixed into dough)', c: ['caffeine'] },
+      { t: 'cocoa powder 12g + 60% chocolate chunks 50g', c: ['caffeine', 'dairy'] },
+      { t: 'hojicha tea ground 4g', c: ['caffeine'] },
+      { t: 'toasted walnut 40g + maple drizzle', c: ['nut'] },
+      { t: 'espresso powder 4g + chocolate 30g', c: ['caffeine', 'dairy'] },
+      { t: 'roasted black sesame 30g', c: [] },
+      { t: 'kinako (roasted soybean flour) 20g + brown sugar', c: [] },
+      { t: 'molasses 1 tbsp + cinnamon', c: [] },
+      { t: 'roasted barley tea (mugicha) ground 4g', c: [] },
+    ],
+    sweet: [
+      { t: 'anko (sweet red bean paste) 80g', c: [] },
+      { t: 'banana, sliced · brown sugar dust', c: [] },
+      { t: 'apple compote (apple 1 + sugar 20g + lemon)', c: [] },
+      { t: 'blueberries 60g + honey 1 tbsp', c: [] },
+      { t: 'custard cream 80g', c: ['dairy', 'egg'] },
+      { t: 'kabocha purée 60g + cinnamon', c: [] },
+      { t: 'fig jam 40g + sea salt', c: [] },
+      { t: 'roasted strawberry 50g + black pepper', c: [] },
+    ],
+    sour: [
+      { t: 'yuzu marmalade 30g', c: [] },
+      { t: 'sun-dried tomato 30g + olive oil', c: [] },
+      { t: 'lemon zest from 1 lemon + sugar 1 tbsp', c: [] },
+      { t: 'cream cheese 40g + raspberry 30g', c: ['dairy'] },
+      { t: 'pickled cherry 30g', c: [] },
+      { t: 'preserved lemon 1 tsp + olive oil', c: [] },
+      { t: 'umeboshi paste 1 tsp + shiso', c: [] },
+    ],
+  };
+
+  function safeAddIn(flavorId, restrictions) {
+    const all = FLAVOR_ADDINS[flavorId];
+    const safe = all.filter(a => !a.c.some(tag => restrictions.has(tag)));
+    if (safe.length) return pick(safe).t;
+    // nothing safe — return null so caller can note omission
+    return null;
+  }
+
+  // ─── surprise variants (tagged) ───────────────────────────────────
   const SURPRISES = [
     { id: 'boluo', label: 'hong kong surprise', tag: '香港',
       buckets: ['pillowy', 'fuwafuwa'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy', 'egg'],
       name: 'bo lo bao 菠萝包', jp: 'パイナップルパン',
       desc: 'a soft milk bun crowned with a sweet crackled cookie crust that looks like pineapple skin — a hong kong cha chaan teng icon.',
       ingredients: [
@@ -415,21 +553,23 @@
       ] },
     { id: 'congyou', label: 'scallion roll', tag: '葱花',
       buckets: ['pillowy', 'fuwafuwa', 'tender'], prefers: ['savory'],
+      contains: ['gluten'],
       name: 'scallion milk roll 葱花面包', jp: 'ねぎパン',
       desc: 'soft milk bread rolls slashed open and stuffed with scallion, sesame oil, and a kiss of salt — a chinese bakery counter staple.',
       ingredients: [
-        'bread flour 280g · milk 150g · sugar 25g · yeast 4g · butter 25g · salt 4g',
+        'bread flour 280g · soy milk 150g · sugar 25g · yeast 4g · neutral oil 25g · salt 4g',
         'filling: chopped scallions 40g · sesame oil 1 tbsp · salt ¼ tsp · white pepper',
-        'egg wash · sesame seeds to finish',
+        'soy milk wash · sesame seeds to finish',
       ],
       method: [
         'mix, knead 10 min, proof 60 min. divide into 8.',
         'shape each into oval, snip top with scissors 3 times. proof 45 min.',
-        'egg-wash, spoon scallion mixture into the snips, sesame on top.',
+        'brush with soy milk, spoon scallion mixture into the snips, sesame on top.',
         'bake 180°C 14 min — eat warm, ideally with milk tea.',
       ] },
     { id: 'hongdou', label: 'red bean classic', tag: '红豆',
       buckets: ['fuwafuwa', 'pillowy'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy', 'egg'],
       name: 'red bean bun 红豆面包', jp: 'あんぱん',
       desc: 'pillowy milk bun hugging a generous mound of sweet red bean paste — the original 调理面包.',
       ingredients: [
@@ -445,6 +585,7 @@
       ] },
     { id: 'laopo', label: 'flaky sweetheart', tag: '老婆饼',
       buckets: ['laminated'], prefers: ['sweet'],
+      contains: ['gluten', 'meat'], // lard is animal fat
       name: 'lao po bing 老婆饼', jp: 'ロウポービン',
       desc: 'crisp-flaky water-and-oil dough wrapping a chewy winter melon and glutinous rice filling — cantonese sweetheart cake.',
       ingredients: [
@@ -460,6 +601,7 @@
       ] },
     { id: 'koulouri', label: 'thessaloniki', tag: 'koulouri',
       buckets: ['stodgy', 'rustic'], prefers: ['savory'],
+      contains: ['gluten'],
       name: 'koulouri thessalonikis', jp: 'クルリ',
       desc: 'crisp sesame-coated bread ring sold from morning carts in northern greece. dipped in petimezi (grape molasses) and water before its sesame coat.',
       ingredients: [
@@ -475,6 +617,7 @@
       ] },
     { id: 'pita', label: 'aegean', tag: 'pita',
       buckets: ['tender'], prefers: ['savory', 'sour'],
+      contains: ['gluten'],
       name: 'pita ψωμί', jp: 'ピタ',
       desc: 'puffed greek flatbread with a soft interior, bakes in a flash on screaming-hot stone. tear and dip in olive oil and lemon.',
       ingredients: [
@@ -489,6 +632,7 @@
       ] },
     { id: 'tsoureki', label: 'sweet braid', tag: 'tsoureki',
       buckets: ['pillowy', 'fuwafuwa'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy', 'egg', 'nut'],
       name: 'tsoureki τσουρέκι', jp: 'ツレキ',
       desc: 'silken greek easter braid scented with mahlepi (cherry pit) and mastiha (mediterranean tree resin) — buttery, faintly floral.',
       ingredients: [
@@ -504,16 +648,44 @@
       ] },
   ];
 
+  // ─── substitution notes ───────────────────────────────────────────
+  const SUB_NOTES = {
+    gluten:   '🌾 GF: swap wheat with a 1:1 GF flour blend + 1 tsp xanthan gum per 250g flour. lower hydration ~10%. crumb will be denser — choux and focaccia adapt best; laminated doughs are trickiest.',
+    dairy:    '🥛 DF: swap milk → oat or soy milk, butter → vegan butter (or 80% weight in coconut oil), cream → cashew cream. egg wash if used → soy milk + maple syrup.',
+    egg:      '🥚 EF: per egg use 60g unsweetened applesauce or 1 tbsp ground flax + 3 tbsp water (rested 10 min). egg wash → soy milk + maple. for choux, omit the recipe and try aquafaba choux (well-reduced chickpea liquid).',
+    meat:     '🍗 meat-free: any ham/sausage/bacon → smoky tempeh, mushroom duxelles, or roasted miso eggplant. lard → cold vegan butter or coconut oil.',
+    caffeine: '☕ caffeine-free: matcha/cocoa/hojicha/coffee → roasted black sesame, kinako, mugicha (roasted barley tea), or molasses + cinnamon for that toasty depth.',
+    nut:      '🥜 nut-free: walnut/almond → toasted pumpkin seeds, sunflower seeds, or oats. cashew cream → silken tofu blended with lemon.',
+  };
+
+  function buildSubs(base, restrictions) {
+    const notes = [];
+    restrictions.forEach(r => {
+      const inBase = base.contains && base.contains.includes(r);
+      if (inBase || r === 'gluten') {
+        // always show GF note since most breads have gluten
+        notes.push(SUB_NOTES[r]);
+      }
+    });
+    // also include caffeine/meat/nut notes if user picked those, even if base doesn't have them — useful context for add-ins
+    ['caffeine', 'meat', 'nut'].forEach(r => {
+      if (restrictions.has(r) && !notes.includes(SUB_NOTES[r])) notes.push(SUB_NOTES[r]);
+    });
+    return notes;
+  }
+
   // ─── recipe generator ─────────────────────────────────────────────
   function generateRecipe(s) {
     const tex = s.texture;
     const flavors = [...s.flavors];
     const bucket = bucketFor(tex);
+    const restrictions = s.restrictions;
 
-    // try surprise (~18%)
+    // surprises must satisfy ALL active restrictions
     const matchingSurprises = SURPRISES.filter(x =>
       x.buckets.includes(bucket) &&
-      (x.prefers.length === 0 || x.prefers.some(p => flavors.includes(p)))
+      (x.prefers.length === 0 || x.prefers.some(p => flavors.includes(p))) &&
+      !x.contains.some(c => restrictions.has(c))
     );
     const rollSurprise = matchingSurprises.length && Math.random() < 0.18;
 
@@ -529,12 +701,15 @@
     const candidates = BASES[bucket];
     const base = pick(candidates);
     const flavors = [...s.flavors];
+    const restrictions = s.restrictions;
 
     const addIns = [];
-    if (flavors.includes('savory')) addIns.push(pick(['cured ham 60g', 'milk sausage 2 · grain mustard 1 tbsp', 'comté or gouda 50g shredded', 'white miso 1 tsp + butter', 'corn kernels 40g + black pepper', 'crisp bacon 40g + black sesame']));
-    if (flavors.includes('bitter')) addIns.push(pick(['matcha powder 6g (mixed into dough)', 'cocoa powder 12g + 60% chocolate chunks 50g', 'hojicha tea ground 4g', 'toasted walnut 40g + maple drizzle', 'espresso powder 4g + chocolate 30g']));
-    if (flavors.includes('sweet'))  addIns.push(pick(['anko (sweet red bean paste) 80g', 'banana, sliced · brown sugar dust', 'apple compote (apple 1 + sugar 20g + lemon)', 'blueberries 60g + honey 1 tbsp', 'custard cream 80g', 'kabocha purée 60g + cinnamon']));
-    if (flavors.includes('sour'))   addIns.push(pick(['yuzu marmalade 30g', 'sun-dried tomato 30g + olive oil', 'lemon zest from 1 lemon + sugar 1 tbsp', 'cream cheese 40g + raspberry 30g', 'pickled cherry 30g']));
+    const omitted = [];
+    flavors.forEach(f => {
+      const safe = safeAddIn(f, restrictions);
+      if (safe) addIns.push(safe);
+      else omitted.push(f);
+    });
 
     const sizeData = {
       bite:    { tag: 'bite-size',  yield: '12 small pieces',    shape: 'pinch into walnut-sized rounds',          bakeNote: 'bake 2 min shorter, watch closely' },
@@ -547,6 +722,7 @@
 
     const ingredients = [base.ingredients];
     addIns.forEach(a => ingredients.push(`+ ${a}`));
+    if (omitted.length) ingredients.push(`(${omitted.join(', ')} skipped — no safe add-in under your restrictions)`);
     ingredients.push(`(yield: ${sz.yield})`);
 
     const method = [
@@ -568,6 +744,8 @@
     const texTag = textureLabel(s.texture).en.replace(/[☁♡🥖 ]/g, '').trim() || 'soft';
     const adjectives = ['warm', 'cozy', 'pillowy', 'a little nerdy', 'soft-hearted', 'crusty in the best way', 'sunny', 'buttery'];
 
+    const subs = buildSubs(base, restrictions);
+
     return {
       surprise: null,
       opening: `done! i baked you something ${pick(adjectives)} — i think you'll like it ♡`,
@@ -577,6 +755,7 @@
       inspired: pick(inspiredOptions),
       ingredients,
       method,
+      subs,
       textureTag: texTag,
       sizeTag: sz.tag,
       yield: sz.yield,
@@ -584,7 +763,6 @@
   }
 
   function buildSurpriseRecipe(v, s) {
-    const flavors = [...s.flavors];
     const sizeData = {
       bite:    { tag: 'bite-size',  yield: 'a small tray',  note: 'shape smaller, bake 2 min shorter' },
       handful: { tag: 'handful',    yield: '6 servings',    note: 'standard size as written' },
@@ -602,6 +780,8 @@
       'tsoureki': `greek easter table — mahlepi from ground cherry pits gives the unmistakable scent.`,
     }[v.id] || 'a surprise from another bread tradition — enjoy ♡';
 
+    const subs = buildSubs(v, s.restrictions);
+
     return {
       surprise: v.tag,
       opening: `oh! ✦ the oven gods sent you a surprise — a ${v.label}!`,
@@ -611,6 +791,7 @@
       inspired: inspiredSurprise,
       ingredients: [...v.ingredients, `(yield: ${sz.yield})`],
       method: [...v.method, `sizing note for your pick: ${sz.note}.`],
+      subs,
       textureTag: textureLabel(s.texture).en.replace(/[☁♡🥖 ]/g, '').trim() || 'soft',
       sizeTag: sz.tag,
       yield: sz.yield,
@@ -619,16 +800,16 @@
 
   function buildName(base, flavors) {
     const fNouns = {
-      savory: ['ham & cheese', 'miso butter', 'sausage', 'corn black pepper', 'bacon sesame'],
-      bitter: ['matcha', 'cocoa', 'hojicha', 'walnut maple', 'espresso chocolate'],
-      sweet:  ['anko', 'banana', 'apple', 'blueberry honey', 'custard cream', 'kabocha cinnamon'],
-      sour:   ['yuzu', 'lemon', 'sun-dried tomato', 'raspberry cream cheese', 'pickled cherry'],
+      savory: ['ham & cheese', 'miso butter', 'sausage', 'corn black pepper', 'bacon sesame', 'caramelized onion', 'miso eggplant', 'olive'],
+      bitter: ['matcha', 'cocoa', 'hojicha', 'walnut maple', 'espresso chocolate', 'black sesame', 'kinako', 'molasses cinnamon'],
+      sweet:  ['anko', 'banana', 'apple', 'blueberry honey', 'custard cream', 'kabocha cinnamon', 'fig & salt', 'roasted strawberry'],
+      sour:   ['yuzu', 'lemon', 'sun-dried tomato', 'raspberry cream cheese', 'pickled cherry', 'preserved lemon', 'umeboshi shiso'],
     };
     const jpNouns = {
-      savory: ['ハム＆チーズ', '味噌バター', 'ソーセージ', 'コーン胡椒', 'ベーコン胡麻'],
-      bitter: ['抹茶', 'ココア', 'ほうじ茶', 'くるみメープル', 'エスプレッソショコラ'],
-      sweet:  ['あんこ', 'バナナ', 'りんご', 'ブルーベリー蜂蜜', 'カスタード', 'かぼちゃシナモン'],
-      sour:   ['ゆず', 'レモン', 'ドライトマト', 'ラズベリークリームチーズ', '桜の塩漬け'],
+      savory: ['ハム＆チーズ', '味噌バター', 'ソーセージ', 'コーン胡椒', 'ベーコン胡麻', 'キャラメル玉ねぎ', '味噌なす', 'オリーブ'],
+      bitter: ['抹茶', 'ココア', 'ほうじ茶', 'くるみメープル', 'エスプレッソショコラ', '黒胡麻', 'きなこ', 'モラセスシナモン'],
+      sweet:  ['あんこ', 'バナナ', 'りんご', 'ブルーベリー蜂蜜', 'カスタード', 'かぼちゃシナモン', 'いちじく塩', '焼き苺'],
+      sour:   ['ゆず', 'レモン', 'ドライトマト', 'ラズベリークリームチーズ', '桜の塩漬け', '塩漬けレモン', '梅紫蘇'],
     };
     const picks = flavors.map(f => pick(fNouns[f]));
     const jpPicks = flavors.map(f => pick(jpNouns[f]));
@@ -652,13 +833,11 @@
     let ctx = null, master = null, isPlaying = false;
     let nextNoteTime = 0, current16th = 0;
     let scheduler = null;
-    const tempo = 110;                       // BPM
-    const stepsPerBar = 6;                   // 3/4 with 8th-note subdivisions
-    const totalSteps = stepsPerBar * 4;      // 4-bar loop = 24 steps
-    const stepDur = 60 / tempo / 2;          // 8th-note in 3/4 == quarter/2 here
+    const tempo = 110;
+    const stepsPerBar = 6;
+    const totalSteps = stepsPerBar * 4;
+    const stepDur = 60 / tempo / 2;
 
-    // I–vi–IV–V over 4 bars, each bar = 3 beats = 6 eighth steps
-    // pitches in Hz
     const N = {
       C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00, A3: 220.00, B3: 246.94,
       C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00, A4: 440.00, B4: 493.88,
@@ -666,25 +845,18 @@
       C6: 1046.5, D6: 1174.66, E6: 1318.5,
     };
 
-    // melody: 24 entries (step→note or null), 3 notes per bar at beat positions 0/2/4
     const melody = [
-      // Bar 1: C major — E5, G5, C5  (with passing notes)
       N.E5, null, N.G5, null, N.E5, N.D5,
-      // Bar 2: A minor — A5, G5, E5
       N.A5, null, N.G5, null, N.E5, null,
-      // Bar 3: F major — F5, A5, G5
       N.F5, null, N.A5, null, N.G5, N.F5,
-      // Bar 4: G major — D5, G5, B5 → resolves
       N.D5, null, N.G5, null, N.B5, N.A5,
     ];
-    // bass: root on beat 1 of each bar (step 0, 6, 12, 18) + fifth on beat 3 (step 4,10,16,22)
     const bassPlan = [
       [0, N.C3], [4, N.G3],
       [6, N.A3], [10, N.E3],
       [12, N.F3], [16, N.C4],
       [18, N.G3], [22, N.D4],
     ];
-    // soft chord pad on each beat 1
     const chordPlan = [
       [0,  [N.C4, N.E4, N.G4]],
       [6,  [N.A3, N.C4, N.E4]],
@@ -698,13 +870,9 @@
       ctx = new Ctor();
       master = ctx.createGain();
       master.gain.value = 0.0;
-      // gentle compressor for safety
       const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -18;
-      comp.knee.value = 18;
-      comp.ratio.value = 4;
-      comp.attack.value = 0.005;
-      comp.release.value = 0.2;
+      comp.threshold.value = -18; comp.knee.value = 18;
+      comp.ratio.value = 4; comp.attack.value = 0.005; comp.release.value = 0.2;
       master.connect(comp).connect(ctx.destination);
     }
 
@@ -751,7 +919,6 @@
     function scheduleStep(step, time) {
       const m = melody[step];
       if (m) bell(m, time, 0.58, 0.14);
-
       bassPlan.forEach(([s, f]) => { if (s === step) bass(f, time, 0.45, 0.18); });
       chordPlan.forEach(([s, fs]) => { if (s === step) pad(fs, time, 1.5, 0.05); });
     }
@@ -793,7 +960,6 @@
 
     function toggle() { isPlaying ? stop() : start(); }
 
-    // SFX
     function blip(freq = 1200, dur = 0.05) {
       if (!ctx) return;
       const t = ctx.currentTime;
@@ -816,19 +982,6 @@
   })();
 
   $musicBtn.addEventListener('click', () => Audio.toggle());
-
-  // first user interaction anywhere can also kickstart audio (offering, not forcing)
-  let primed = false;
-  function primeAudio() {
-    if (primed) return;
-    primed = true;
-    // do not auto-start; just init context so first toggle is instant
-    try {
-      const Ctor = window.AudioContext || window.webkitAudioContext;
-      if (!window.__bakingCtx) window.__bakingCtx = new Ctor();
-    } catch (e) {}
-  }
-  window.addEventListener('pointerdown', primeAudio, { once: true });
 
   // ─── kickoff ──────────────────────────────────────────────────────
   stepIntro();
