@@ -81,7 +81,8 @@
       ${emoji ? `<span class="emoji">${emoji}</span>` : ''}
       <span class="label">${label}${hint ? `<br><span class="hint">${hint}</span>` : ''}</span>
     `;
-    b.addEventListener('click', () => { Audio.blip(); onClick(); });
+    // single-action buttons get a blip; multi-select sites handle their own chime
+    b.addEventListener('click', () => onClick(b));
     return b;
   }
 
@@ -90,7 +91,7 @@
     b.className = 'btn-surprise';
     b.type = 'button';
     b.innerHTML = `<span class="die">🎲</span><span>${label}</span>`;
-    b.addEventListener('click', () => { Audio.blip(1400, 0.07); onClick(); });
+    b.addEventListener('click', () => { Audio.swoosh(); onClick(); });
     return b;
   }
 
@@ -118,7 +119,21 @@
         emoji: '🥐',
         label: "let's bake!",
         hint: 'tap to begin',
-        onClick: () => stepTexture(),
+        onClick: () => { Audio.blip(); stepTexture(); },
+      }));
+      $choices.appendChild(makeSurpriseBtn('surprise me with everything!', () => {
+        // randomize everything
+        state.texture = Math.floor(Math.random() * 101);
+        state.flavors = new Set();
+        const fn = 1 + Math.floor(Math.random() * 3);
+        shuffled(FLAVORS.map(f => f.id)).slice(0, fn).forEach(id => state.flavors.add(id));
+        state.size = pick(['bite', 'handful', 'arm']);
+        state.restrictions = new Set();
+        if (Math.random() > 0.65) {
+          const rn = 1 + Math.floor(Math.random() * 2);
+          shuffled(RESTRICTIONS.map(r => r.id)).slice(0, rn).forEach(id => state.restrictions.add(id));
+        }
+        setTimeout(() => stepRecipe(), 500);
       }));
     }, 600);
   }
@@ -160,6 +175,7 @@
       const t = textureLabel(state.texture);
       big.textContent = t.en;
       note.textContent = t.note;
+      Audio.tick();
       if (t.en !== lastBucket) { Audio.blip(880, 0.06); lastBucket = t.en; }
     });
 
@@ -219,9 +235,11 @@
         hint: f.hint,
         selected,
         onClick: () => {
-          if (state.flavors.has(f.id)) state.flavors.delete(f.id);
-          else state.flavors.add(f.id);
+          const isAdding = !state.flavors.has(f.id);
+          if (isAdding) state.flavors.add(f.id);
+          else state.flavors.delete(f.id);
           btn.classList.toggle('selected');
+          Audio.chime(isAdding);
           updateFlavorNext();
         },
       });
@@ -286,6 +304,7 @@
         selected: state.size === s.id,
         onClick: () => {
           state.size = s.id;
+          Audio.chime(true);
           setTimeout(() => stepRestrictions(), 280);
         },
       });
@@ -332,9 +351,11 @@
         hint: r.hint,
         selected,
         onClick: () => {
-          if (state.restrictions.has(r.id)) state.restrictions.delete(r.id);
-          else state.restrictions.add(r.id);
+          const isAdding = !state.restrictions.has(r.id);
+          if (isAdding) state.restrictions.add(r.id);
+          else state.restrictions.delete(r.id);
           btn.classList.toggle('selected');
+          Audio.chime(isAdding);
           updateRestrictionsNext();
         },
       });
@@ -390,6 +411,7 @@
         <span class="jp">${r.jpName}</span>
       </h2>
       <p class="recipe-desc">${r.desc}</p>
+      ${r.dough ? `<p class="recipe-dough">${r.dough}</p>` : ''}
       <p class="recipe-inspired">${r.inspired}</p>
 
       <div class="recipe-section">
@@ -580,118 +602,118 @@
     return null;
   }
 
-  // ─── surprise variants (tagged) ───────────────────────────────────
+  // ─── surprise variants (Japanese chōri-pan tradition) ─────────────
   const SURPRISES = [
-    { id: 'boluo', label: 'hong kong surprise', tag: '香港',
+    { id: 'anpan_classic', label: 'classic anpan', tag: 'チョリパン',
       buckets: ['pillowy', 'fuwafuwa'], prefers: ['sweet'],
       contains: ['gluten', 'dairy', 'egg'],
-      name: 'bo lo bao 菠萝包', jp: 'パイナップルパン',
-      desc: 'a soft milk bun crowned with a sweet crackled cookie crust that looks like pineapple skin — a hong kong cha chaan teng icon.',
-      ingredients: [
-        'bun: bread flour 240g · milk 130g · sugar 25g · yeast 4g · butter 20g · salt 3g',
-        'crust: flour 80g · butter 50g · powdered sugar 50g · egg yolk 1 · custard powder 1 tsp · pinch of baking soda',
-        'egg wash · optional cold slab of butter to insert hot (菠萝油 style)',
-      ],
-      method: [
-        'mix & knead bun dough until smooth. proof 60 min, divide 6, bench 10 min.',
-        'beat crust ingredients to a soft dough. roll thin between paper, drape over each bun, score crosshatch with a knife.',
-        'final proof 40 min, brush crust with egg wash, bake 180°C 14 min until cracks open golden.',
-        'split warm and slip in a thick cold pat of butter for full 菠萝油.',
-      ] },
-    { id: 'congyou', label: 'scallion roll', tag: '葱花',
-      buckets: ['pillowy', 'fuwafuwa', 'tender'], prefers: ['savory'],
-      contains: ['gluten'],
-      name: 'scallion milk roll 葱花面包', jp: 'ねぎパン',
-      desc: 'soft milk bread rolls slashed open and stuffed with scallion, sesame oil, and a kiss of salt — a chinese bakery counter staple.',
-      ingredients: [
-        'bread flour 280g · soy milk 150g · sugar 25g · yeast 4g · neutral oil 25g · salt 4g',
-        'filling: chopped scallions 40g · sesame oil 1 tbsp · salt ¼ tsp · white pepper',
-        'soy milk wash · sesame seeds to finish',
-      ],
-      method: [
-        'mix, knead 10 min, proof 60 min. divide into 8.',
-        'shape each into oval, snip top with scissors 3 times. proof 45 min.',
-        'brush with soy milk, spoon scallion mixture into the snips, sesame on top.',
-        'bake 180°C 14 min — eat warm, ideally with milk tea.',
-      ] },
-    { id: 'hongdou', label: 'red bean classic', tag: '红豆',
-      buckets: ['fuwafuwa', 'pillowy'], prefers: ['sweet'],
-      contains: ['gluten', 'dairy', 'egg'],
-      name: 'red bean bun 红豆面包', jp: 'あんぱん',
-      desc: 'pillowy milk bun hugging a generous mound of sweet red bean paste — the original 调理面包.',
+      name: 'classic anpan', jp: 'あんパン',
+      desc: 'soft milk dough wrapped around chunky red bean paste, finished with a single black sesame seed. the bun that started japan\'s filled-bread obsession.',
       ingredients: [
         'bread flour 280g · milk 130g · sugar 28g · yeast 4g · butter 25g · salt 4g',
         'tsubu-an (chunky red bean paste) 180g',
-        'egg wash · black sesame to seal',
+        'egg wash · one black sesame seed per bun',
       ],
       method: [
-        'make tangzhong (20g flour + 90g milk paste). combine all, knead 12 min.',
+        'whisk tangzhong (20g flour + 90g milk paste). combine all dough, knead 12 min.',
         'proof 60 min, divide 8, bench 10 min.',
         'flatten each, wrap 22g anko, seal seam-down. proof 45 min.',
         'egg-wash, press one black sesame on top, bake 180°C 14 min.',
       ] },
-    { id: 'laopo', label: 'flaky sweetheart', tag: '老婆饼',
-      buckets: ['laminated'], prefers: ['sweet'],
-      contains: ['gluten', 'meat'], // lard is animal fat
-      name: 'lao po bing 老婆饼', jp: 'ロウポービン',
-      desc: 'crisp-flaky water-and-oil dough wrapping a chewy winter melon and glutinous rice filling — cantonese sweetheart cake.',
-      ingredients: [
-        'water dough: flour 150g · sugar 15g · lard 40g · water 70g',
-        'oil dough: flour 100g · lard 50g',
-        'filling: candied winter melon 80g · glutinous rice flour 30g (toasted) · sugar 20g · sesame 10g · water 30g',
-      ],
-      method: [
-        'mix both doughs separately, rest 30 min.',
-        'wrap oil dough inside water dough. roll long, fold thirds, rest 15 min. repeat ×2.',
-        'divide 8. roll each thin, place filling, pinch closed. flatten gently.',
-        'score top twice, brush with egg yolk, sprinkle sesame. bake 180°C 18 min.',
-      ] },
-    { id: 'koulouri', label: 'thessaloniki', tag: 'koulouri',
-      buckets: ['stodgy', 'rustic'], prefers: ['savory'],
-      contains: ['gluten'],
-      name: 'koulouri thessalonikis', jp: 'クルリ',
-      desc: 'crisp sesame-coated bread ring sold from morning carts in northern greece. dipped in petimezi (grape molasses) and water before its sesame coat.',
-      ingredients: [
-        'bread flour 400g · water 240g · yeast 4g · olive oil 15g · salt 6g',
-        'dip: petimezi or grape molasses 30g + water 200g',
-        'sesame seeds 100g',
-      ],
-      method: [
-        'mix, knead 8 min. proof 60 min. divide 6.',
-        'roll each into a 50cm rope. join ends into a ring. rest 15 min.',
-        'dip each ring in petimezi-water, then press into sesame to coat.',
-        'bake on hot stone 220°C 14 min. cool on a rack — they crisp as they sit.',
-      ] },
-    { id: 'pita', label: 'aegean', tag: 'pita',
-      buckets: ['tender'], prefers: ['savory', 'sour'],
-      contains: ['gluten'],
-      name: 'pita ψωμί', jp: 'ピタ',
-      desc: 'puffed greek flatbread with a soft interior, bakes in a flash on screaming-hot stone. tear and dip in olive oil and lemon.',
-      ingredients: [
-        'bread flour 300g · water 190g · olive oil 15g · yeast 3g · salt 5g',
-        '(optional: za\'atar or oregano for the top)',
-      ],
-      method: [
-        'mix, knead 8 min, proof 90 min.',
-        'divide 6, ball, rest 20 min. roll each to 5mm.',
-        'preheat stone/cast iron 260°C. slide on, ~2 min until puffed and freckled.',
-        'wrap in a tea towel to keep soft.',
-      ] },
-    { id: 'tsoureki', label: 'sweet braid', tag: 'tsoureki',
+    { id: 'cream_pan', label: 'cream pan', tag: '喫茶',
       buckets: ['pillowy', 'fuwafuwa'], prefers: ['sweet'],
-      contains: ['gluten', 'dairy', 'egg', 'nut'],
-      name: 'tsoureki τσουρέκι', jp: 'ツレキ',
-      desc: 'silken greek easter braid scented with mahlepi (cherry pit) and mastiha (mediterranean tree resin) — buttery, faintly floral.',
+      contains: ['gluten', 'dairy', 'egg'],
+      name: 'cream pan', jp: 'クリームパン',
+      desc: 'shell-shaped milk bun filled with house-made vanilla custard. a shōwa-era kissaten classic — soft as a sigh.',
       ingredients: [
-        'bread flour 300g · milk 100g · sugar 70g · eggs 2 · yeast 6g · butter 70g · salt 4g',
-        'mahlepi ground ½ tsp · mastiha ground ¼ tsp · orange zest from 1 orange',
-        'egg wash · sliced almonds',
+        'bread flour 260g · milk 130g · sugar 30g · yeast 4g · butter 30g · salt 4g',
+        'custard: milk 250g · yolks 3 · sugar 60g · flour 20g · vanilla bean ½',
+        'egg wash',
       ],
       method: [
-        'warm milk, dissolve yeast & sugar. mix in eggs, spices, zest, then flour & salt.',
-        'knead 12 min, gradually adding butter. bulk 90 min.',
-        'divide 3, roll long, braid. proof 60 min. egg-wash, scatter almonds.',
-        'bake 170°C 28 min. cool wrapped in a cloth — the crumb sets soft.',
+        'make custard: heat milk + vanilla. whisk yolks + sugar + flour. temper, return to heat until thick. chill.',
+        'mix dough, knead 10 min. proof 60 min. divide 6.',
+        'flatten each into oval, place 40g custard, fold like a hand pie. seal edges with fork.',
+        'proof 50 min. egg-wash. bake 180°C 12 min — pull as soon as the top is just golden.',
+      ] },
+    { id: 'mushi_pan', label: 'steamed cloud bun', tag: '蒸し',
+      buckets: ['cloud', 'fuwafuwa'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy', 'egg'],
+      name: 'mushi pan', jp: '蒸しパン',
+      desc: 'steamed (not baked!) cloud bun. pillowy and faintly sweet — a stovetop snack for snowy afternoons. eat with hojicha.',
+      ingredients: [
+        'cake flour 150g · sugar 60g · baking powder 6g · egg 1 · milk 90g · neutral oil 20g',
+        'optional: candied chestnut, kuromame, or sweet potato cubes — 60g',
+      ],
+      method: [
+        'whisk egg + sugar + milk + oil. sift in flour + baking powder, fold until just smooth.',
+        'line small cups with paper, fill ⅔. press in chestnut/sweet potato if using.',
+        'steam over rolling boil 12 min, lid wrapped in cloth so condensation doesn\'t drip.',
+        'pull immediately, cool on rack — the tops will dome and split if your fire was hot enough.',
+      ] },
+    { id: 'shio_pan', label: 'salt butter roll', tag: '塩パン',
+      buckets: ['pillowy', 'tender'], prefers: ['savory'],
+      contains: ['gluten', 'dairy'],
+      name: 'shio pan', jp: '塩パン',
+      desc: 'a soft roll with a cold butter log rolled inside that melts as it bakes, leaving a buttery cavity. flaky salt on top. a small bakery in ehime made this famous.',
+      ingredients: [
+        'bread flour 280g · water 170g · sugar 12g · yeast 4g · butter (in dough) 15g · salt 5g',
+        'cold butter sticks 10g × 8 (one per roll, kept frozen until rolling)',
+        'flaky salt to finish',
+      ],
+      method: [
+        'mix, knead 9 min. proof 60 min. divide 8.',
+        'roll each into a long teardrop. place a frozen butter stick at the wide end, roll up tight from wide to point.',
+        'proof 45 min. scatter flaky salt across the tops.',
+        'bake 220°C 11 min until the butter has fully melted into a glossy cavity. eat warm — the cavity is the point.',
+      ] },
+    { id: 'karee_pan', label: 'curry bread', tag: 'カレー',
+      buckets: ['fuwafuwa', 'pillowy'], prefers: ['savory'],
+      contains: ['gluten', 'dairy', 'egg', 'meat'],
+      name: 'karē pan', jp: 'カレーパン',
+      desc: 'soft bread wrapped around japanese curry, panko-coated and deep-fried. crisp shell, fragrant inside. a showa-era picnic icon from shimokitazawa.',
+      ingredients: [
+        'bread flour 260g · milk 130g · sugar 18g · yeast 4g · butter 20g · salt 4g',
+        'japanese curry (thick, well-reduced) 200g — beef or chicken, cooled overnight',
+        'panko 100g · egg wash · neutral oil for frying',
+      ],
+      method: [
+        'mix dough, knead 10 min. proof 60 min. divide 8.',
+        'flatten each, place 25g cold curry, seal seam-down.',
+        'proof 30 min. egg-wash, roll in panko.',
+        'fry at 170°C 4 min, turning once, until deep golden. drain on rack.',
+      ] },
+    { id: 'sakura_pan', label: 'sakura bloom bun', tag: '桜',
+      buckets: ['pillowy', 'fuwafuwa'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy'],
+      name: 'sakura pan', jp: '桜パン',
+      desc: 'milk bun tinted faint pink with sakura paste, a salt-pickled cherry blossom pressed on top. brief and beautiful — bakeries in tokyo make these for two weeks in march.',
+      ingredients: [
+        'bread flour 260g · milk 130g · sugar 25g · yeast 4g · butter 25g · salt 3g',
+        'sakura paste (anko + sakura petals) 120g',
+        'salt-pickled sakura blossoms 6, rinsed and patted dry',
+      ],
+      method: [
+        'mix dough, knead 10 min. proof 60 min. divide 6.',
+        'flatten each, wrap 20g sakura paste, seal seam-down. proof 45 min.',
+        'press one rinsed blossom into the center of each bun.',
+        'bake 170°C 13 min — the blossom should still hold its color. eat outside under a tree if you can.',
+      ] },
+    { id: 'kokutou_pan', label: 'okinawan brown sugar bread', tag: '黒糖',
+      buckets: ['fuwafuwa', 'pillowy'], prefers: ['sweet'],
+      contains: ['gluten', 'dairy'],
+      name: 'kokutō pan', jp: '黒糖パン',
+      desc: 'okinawan brown sugar bread — rich molasses notes, faintly chewy, deeply warm. caffeine-free comfort, the color of toasted caramel.',
+      ingredients: [
+        'bread flour 280g · milk 140g · kokutō (okinawan brown sugar) 50g · yeast 4g · butter 25g · salt 4g',
+        'optional: walnut 30g (skip for nut-free)',
+        'kokutō glaze: brown sugar 20g + water 10g warmed',
+      ],
+      method: [
+        'dissolve kokutō into warm milk first. combine all dough, knead 12 min.',
+        'proof 70 min, divide 6, bench 10 min. shape as round buns or one loaf.',
+        'final proof 50 min. bake 180°C 16 min for buns / 28 min for a loaf.',
+        'brush warm with kokutō glaze for shine.',
       ] },
   ];
 
@@ -798,7 +820,8 @@
       opening: `done! i baked you something ${pick(adjectives)} — i think you'll like it ♡`,
       name: namePicks.en,
       jpName: namePicks.jp,
-      desc: namePicks.desc + ' ' + (base.dough ? base.dough.charAt(0).toUpperCase() + base.dough.slice(1) + (base.dough.endsWith('.') ? '' : '.') : ''),
+      desc: namePicks.desc,
+      dough: base.dough,                       // shown separately on the card
       inspired: pick(inspiredOptions),
       ingredients,
       method,
@@ -818,14 +841,14 @@
     const sz = sizeData[s.size];
 
     const inspiredSurprise = {
-      'boluo':    `from the cha chaan teng counters of central, hong kong — the crackle on top is non-negotiable.`,
-      'congyou':  `a chinese bakery classic — every neighborhood has its version. tangshanren bakery in shanghai, paris baguette across asia.`,
-      'hongdou':  `traces to kimuraya in ginza (1874) — the bun that started japan's 调理面包 obsession, by way of china's red bean tradition.`,
-      'laopo':    `cantonese folklore says a baker invented this for his wife — sweet, flaky, full of feeling.`,
-      'koulouri': `street-cart breakfast in thessaloniki, eaten at the trolley stop on the way to work.`,
-      'pita':     `mediterranean essential — bakes in 2 minutes on hot stone, puffed and tender.`,
-      'tsoureki': `greek easter table — mahlepi from ground cherry pits gives the unmistakable scent.`,
-    }[v.id] || 'a surprise from another bread tradition — enjoy ♡';
+      'anpan_classic': `traces to kimuraya in ginza, 1874 — the bun that started japan's filled-bread tradition.`,
+      'cream_pan':     `shōwa-era kissaten staple. order it with a tiny coffee at a cafe with wood-paneled walls.`,
+      'mushi_pan':     `stovetop snack for cold afternoons — no oven, no kneading, just a steamer and a window.`,
+      'shio_pan':      `a small bakery in ehime put this on the map in the late 2010s. eat warm, before the butter cavity sets.`,
+      'karee_pan':     `showa-era picnic icon born in tokyo's shimokitazawa — crisp shell, soft heart.`,
+      'sakura_pan':    `tokyo bakeries make these for two weeks each march. take one to a park bench.`,
+      'kokutou_pan':   `okinawan brown sugar lends the loaf its caramel depth — sweet without coffee or chocolate.`,
+    }[v.id] || `from somewhere in the japanese bread tradition — enjoy ♡`;
 
     const subs = buildSubs(v, s.restrictions);
 
@@ -835,6 +858,7 @@
       name: v.name,
       jpName: v.jp,
       desc: v.desc,
+      dough: '',
       inspired: inspiredSurprise,
       ingredients: [...v.ingredients, `(yield: ${sz.yield})`],
       method: [...v.method, `sizing note for your pick: ${sz.note}.`],
@@ -845,28 +869,66 @@
     };
   }
 
+  // poetic prefixes for recipe names — paired EN ↔ JP
+  const NAME_PREFIXES = [
+    { en: 'morning',        jp: '朝の' },
+    { en: 'quiet',          jp: '静かな' },
+    { en: 'rainy day',      jp: '雨の日の' },
+    { en: 'moonlit',        jp: '月夜の' },
+    { en: 'sunday',         jp: '日曜の' },
+    { en: 'first frost',    jp: '初霜の' },
+    { en: 'afternoon',      jp: '午後の' },
+    { en: 'attic',          jp: '屋根裏の' },
+    { en: 'porchside',      jp: '縁側の' },
+    { en: 'sleepy',         jp: 'うとうとの' },
+    { en: 'lamplit',        jp: '灯りの' },
+    { en: 'seaside',        jp: '海辺の' },
+    { en: 'kissaten',       jp: '喫茶店の' },
+    { en: 'garden',         jp: '庭の' },
+    { en: 'wandering',      jp: '旅の' },
+    { en: 'rooftop',        jp: '屋根の上の' },
+    { en: 'paperback',      jp: '文庫本の' },
+    { en: 'second floor',   jp: '二階の' },
+    { en: 'late train',     jp: '終電前の' },
+    { en: 'old kitchen',    jp: '台所の' },
+  ];
+
+  // short flavor accents (single word) for names — paired EN ↔ JP
+  const NAME_ACCENTS = {
+    savory: { en: ['cheese', 'miso', 'sausage', 'sesame', 'olive', 'onion', 'tomato'],
+              jp: ['チーズ', '味噌',  'ソーセージ', '胡麻', 'オリーブ', '玉ねぎ', 'トマト'] },
+    bitter: { en: ['matcha', 'cocoa', 'hojicha', 'walnut', 'sesame', 'kinako'],
+              jp: ['抹茶',   'ココア', 'ほうじ茶', 'くるみ', '黒胡麻', 'きなこ'] },
+    sweet:  { en: ['anko', 'banana', 'apple', 'blueberry', 'custard', 'kabocha', 'fig'],
+              jp: ['あんこ', 'バナナ', 'りんご', 'ブルーベリー', 'カスタード', 'かぼちゃ', 'いちじく'] },
+    sour:   { en: ['yuzu', 'lemon', 'tomato', 'raspberry', 'umeboshi'],
+              jp: ['柚子',  'レモン', 'トマト', 'ラズベリー', '梅'] },
+  };
+
   function buildName(base, flavors) {
-    const fNouns = {
-      savory: ['ham & cheese', 'miso butter', 'sausage', 'corn black pepper', 'bacon sesame', 'caramelized onion', 'miso eggplant', 'olive'],
-      bitter: ['matcha', 'cocoa', 'hojicha', 'walnut maple', 'espresso chocolate', 'black sesame', 'kinako', 'molasses cinnamon'],
-      sweet:  ['anko', 'banana', 'apple', 'blueberry honey', 'custard cream', 'kabocha cinnamon', 'fig & salt', 'roasted strawberry'],
-      sour:   ['yuzu', 'lemon', 'sun-dried tomato', 'raspberry cream cheese', 'pickled cherry', 'preserved lemon', 'umeboshi shiso'],
-    };
-    const jpNouns = {
-      savory: ['ハム＆チーズ', '味噌バター', 'ソーセージ', 'コーン胡椒', 'ベーコン胡麻', 'キャラメル玉ねぎ', '味噌なす', 'オリーブ'],
-      bitter: ['抹茶', 'ココア', 'ほうじ茶', 'くるみメープル', 'エスプレッソショコラ', '黒胡麻', 'きなこ', 'モラセスシナモン'],
-      sweet:  ['あんこ', 'バナナ', 'りんご', 'ブルーベリー蜂蜜', 'カスタード', 'かぼちゃシナモン', 'いちじく塩', '焼き苺'],
-      sour:   ['ゆず', 'レモン', 'ドライトマト', 'ラズベリークリームチーズ', '桜の塩漬け', '塩漬けレモン', '梅紫蘇'],
-    };
-    const picks = flavors.map(f => pick(fNouns[f]));
-    const jpPicks = flavors.map(f => pick(jpNouns[f]));
+    const idx = Math.floor(Math.random() * NAME_PREFIXES.length);
+    const prefix = NAME_PREFIXES[idx];
 
-    const flavorEn = picks.length ? picks.join(' × ') : 'plain';
-    const flavorJp = jpPicks.length ? jpPicks.join('×') : 'プレーン';
+    let accentEn = '', accentJp = '';
+    if (flavors.length && Math.random() > 0.35) {
+      const f = pick(flavors);
+      const ai = Math.floor(Math.random() * NAME_ACCENTS[f].en.length);
+      accentEn = NAME_ACCENTS[f].en[ai] + ' ';
+      accentJp = NAME_ACCENTS[f].jp[ai];
+    }
 
-    const en = `${flavorEn} ${base.name}`.replace(/\s+/g, ' ').toLowerCase();
-    const jp = `${flavorJp}${base.jp}`;
-    const desc = `a ${flavorEn.toLowerCase()} take on ${base.name}.`;
+    const en = `${prefix.en} ${accentEn}${base.name}`;
+    const jp = `${prefix.jp}${accentJp}${base.jp}`;
+
+    const descs = [
+      `tuck this in your pocket for a ${prefix.en} walk.`,
+      `the kind of bread you'd unwrap by a window in the ${prefix.en} hours.`,
+      `for the quiet between two cups of tea.`,
+      `feels like ${prefix.en} air — and somehow exactly the right size.`,
+      `small enough for a notebook bag, generous enough to share with one friend.`,
+      `bake this when you want the kitchen to smell like ${prefix.en}.`,
+    ];
+    const desc = pick(descs);
 
     return { en, jp, desc };
   }
@@ -1019,14 +1081,79 @@
       o.start(t); o.stop(t + dur + 0.02);
     }
 
+    // hover tick — extremely quiet, throttled
+    let lastHover = 0;
+    function hover() {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      if (t - lastHover < 0.08) return;
+      lastHover = t;
+      const o = ctx.createOscillator(); o.type = 'sine'; o.frequency.value = 2400;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.018, t + 0.003);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.04);
+      o.connect(g).connect(master);
+      o.start(t); o.stop(t + 0.06);
+    }
+
+    // selection chime — up (add) or down (remove)
+    function chime(up = true) {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      const freqs = up ? [N.G5, N.C6] : [N.C6, N.G5];
+      freqs.forEach((f, i) => bell(f, t + i * 0.055, 0.28, 0.085));
+    }
+
+    // surprise swoosh — a rising airy sweep
+    function swoosh() {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      const o = ctx.createOscillator(); o.type = 'sawtooth';
+      o.frequency.setValueAtTime(220, t);
+      o.frequency.exponentialRampToValueAtTime(1400, t + 0.22);
+      const bp = ctx.createBiquadFilter(); bp.type = 'bandpass';
+      bp.frequency.value = 900; bp.Q.value = 2.5;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.06, t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+      o.connect(bp).connect(g).connect(master);
+      o.start(t); o.stop(t + 0.32);
+      // sparkle bells on top
+      [N.E5, N.A5, N.D6].forEach((f, i) => bell(f, t + 0.08 + i * 0.05, 0.35, 0.1));
+    }
+
+    // slider tick — softer than blip, throttled separately
+    let lastTick = 0;
+    function tick() {
+      if (!ctx) return;
+      const t = ctx.currentTime;
+      if (t - lastTick < 0.06) return;
+      lastTick = t;
+      const o = ctx.createOscillator(); o.type = 'square'; o.frequency.value = 1600;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(0.012, t + 0.002);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + 0.025);
+      o.connect(g).connect(master);
+      o.start(t); o.stop(t + 0.04);
+    }
+
     function fanfare() {
       if (!ctx) return;
       const t = ctx.currentTime;
       [N.C5, N.E5, N.G5, N.C6].forEach((f, i) => bell(f, t + i * 0.09, 0.5, 0.18));
     }
 
-    return { start, stop, toggle, blip, fanfare };
+    return { start, stop, toggle, blip, hover, chime, swoosh, tick, fanfare };
   })();
+
+  // hover delegation — only fires once ctx exists (after user toggled music once)
+  document.body.addEventListener('pointerover', (e) => {
+    if (!e.target.closest('.choice-btn, .btn-primary, .btn-ghost, .btn-surprise, .music-btn, .back-home')) return;
+    Audio.hover();
+  });
 
   $musicBtn.addEventListener('click', () => Audio.toggle());
 

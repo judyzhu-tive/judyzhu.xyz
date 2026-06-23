@@ -431,10 +431,12 @@ body::before {
 }
 .slider-labels {
   display: flex; justify-content: space-between;
-  font-family: var(--pixel);
-  font-size: 13px;
+  font-family: var(--maru);
+  font-weight: 700;
+  font-size: 14px;
   color: var(--crust-deep);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: 0;
 }
 .slider-labels .jp {
   display: block;
@@ -442,6 +444,7 @@ body::before {
   font-size: 11px;
   color: var(--cocoa-soft);
   font-weight: 500;
+  margin-top: 2px;
 }
 .slider-track {
   position: relative;
@@ -488,10 +491,12 @@ body::before {
 }
 .slider-readout .big {
   display: block;
-  font-family: var(--pixel);
-  font-size: 17px;
+  font-family: var(--maru);
+  font-weight: 700;
+  font-size: 18px;
   color: var(--crust-deep);
   margin-bottom: 2px;
+  letter-spacing: 0.2px;
 }
 
 /* ─── confirm bar ─── */
@@ -622,8 +627,17 @@ body::before {
   font-size: 14px;
   line-height: 1.6;
   color: var(--ink);
-  margin: 12px 0 16px;
+  margin: 12px 0 8px;
   font-weight: 500;
+}
+.recipe-dough {
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: var(--cocoa-soft);
+  font-style: italic;
+  margin: 0 0 16px;
+  padding-left: 10px;
+  border-left: 2px solid var(--cream-deep);
 }
 .recipe-inspired {
   font-size: 12px;
