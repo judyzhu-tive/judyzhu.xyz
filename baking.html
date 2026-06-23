@@ -14,18 +14,15 @@
   <link rel="stylesheet" href="baking.css" />
 </head>
 <body>
-  <!-- ambient: warm sparkles + drifting flour specks (no steam) -->
+  <!-- ambient: warm sparkles + drifting flour specks -->
   <div class="ambient" aria-hidden="true">
     <span class="dust d1"></span>
     <span class="dust d2"></span>
     <span class="dust d3"></span>
     <span class="dust d4"></span>
-    <span class="dust d5"></span>
-    <span class="dust d6"></span>
     <span class="sparkle s1">✦</span>
     <span class="sparkle s2">✦</span>
     <span class="sparkle s3">✧</span>
-    <span class="sparkle s4">✦</span>
   </div>
 
   <!-- top controls -->
@@ -40,52 +37,27 @@
 
   <main class="stage">
 
-    <!-- ── SCENE ── intricate bakery counter -->
+    <!-- ── SCENE ── minimal: anpan + tiny chef cat -->
     <section class="scene-wrap">
-      <svg class="scene" viewBox="0 0 520 360" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <svg class="scene" viewBox="0 0 360 280" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
         <defs>
-          <!-- gradients -->
-          <linearGradient id="wallGrad" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%"  stop-color="#FFE3B7"/>
-            <stop offset="55%" stop-color="#F8CE8C"/>
-            <stop offset="100%" stop-color="#E8A968"/>
-          </linearGradient>
-          <linearGradient id="counterWood" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stop-color="#E0B07C"/>
-            <stop offset="100%" stop-color="#B7854C"/>
-          </linearGradient>
-          <linearGradient id="paneling" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%"  stop-color="#9DB87A"/>
-            <stop offset="100%" stop-color="#6E8E55"/>
-          </linearGradient>
-          <radialGradient id="anpanFill" cx="40%" cy="35%" r="65%">
-            <stop offset="0%"  stop-color="#F7C994"/>
-            <stop offset="55%" stop-color="#D9904E"/>
-            <stop offset="100%" stop-color="#8E5023"/>
+          <radialGradient id="warmLight" cx="55%" cy="42%" r="55%">
+            <stop offset="0%"  stop-color="#FFF0CF" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#FFF0CF" stop-opacity="0"/>
           </radialGradient>
-          <radialGradient id="shokuFill" cx="50%" cy="45%" r="60%">
-            <stop offset="0%"  stop-color="#FFFCF0"/>
-            <stop offset="80%" stop-color="#F8E6C4"/>
-            <stop offset="100%" stop-color="#E5C795"/>
+          <radialGradient id="anpanFill" cx="40%" cy="32%" r="68%">
+            <stop offset="0%"  stop-color="#F4C189"/>
+            <stop offset="58%" stop-color="#CE864A"/>
+            <stop offset="100%" stop-color="#7E4419"/>
           </radialGradient>
-          <linearGradient id="shokuCrown" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%"  stop-color="#F4BD75"/>
-            <stop offset="100%" stop-color="#D9904E"/>
-          </linearGradient>
-          <radialGradient id="bagFill" cx="40%" cy="30%" r="70%">
-            <stop offset="0%"  stop-color="#F2B770"/>
-            <stop offset="60%" stop-color="#C97D3D"/>
-            <stop offset="100%" stop-color="#7A4419"/>
-          </radialGradient>
-          <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
-            <stop offset="0%"  stop-color="#F4856B" stop-opacity="0.85"/>
-            <stop offset="100%" stop-color="#F4856B" stop-opacity="0"/>
-          </radialGradient>
-          <radialGradient id="shine" cx="35%" cy="30%" r="40%">
-            <stop offset="0%"  stop-color="#FFF6E0" stop-opacity="0.9"/>
+          <radialGradient id="anpanShine" cx="32%" cy="26%" r="38%">
+            <stop offset="0%"  stop-color="#FFF6E0" stop-opacity="0.8"/>
             <stop offset="100%" stop-color="#FFF6E0" stop-opacity="0"/>
           </radialGradient>
-          <!-- gingham patterns -->
+          <radialGradient id="cheek" cx="50%" cy="50%" r="50%">
+            <stop offset="0%"  stop-color="#F08368" stop-opacity="0.75"/>
+            <stop offset="100%" stop-color="#F08368" stop-opacity="0"/>
+          </radialGradient>
           <pattern id="ginghamRed" width="8" height="8" patternUnits="userSpaceOnUse">
             <rect width="8" height="8" fill="#F4DCC6"/>
             <rect width="4" height="4" fill="#C95A47" opacity="0.85"/>
@@ -93,347 +65,95 @@
             <rect width="4" height="4" fill="#E2987C" opacity="0.55" x="4"/>
             <rect width="4" height="4" fill="#E2987C" opacity="0.55" y="4"/>
           </pattern>
-          <pattern id="ginghamGreen" width="8" height="8" patternUnits="userSpaceOnUse">
-            <rect width="8" height="8" fill="#F4EEC8"/>
-            <rect width="4" height="4" fill="#7DA34B" opacity="0.8"/>
-            <rect x="4" y="4" width="4" height="4" fill="#7DA34B" opacity="0.8"/>
-            <rect width="4" height="4" fill="#B4C879" opacity="0.6" x="4"/>
-            <rect width="4" height="4" fill="#B4C879" opacity="0.6" y="4"/>
-          </pattern>
         </defs>
 
-        <!-- wall -->
-        <rect width="520" height="360" fill="url(#wallGrad)"/>
+        <!-- soft warm halo behind characters -->
+        <circle cx="200" cy="130" r="150" fill="url(#warmLight)"/>
 
-        <!-- soft window light on left -->
-        <path d="M0 0 L130 0 L100 220 L0 220 Z" fill="#FFF3D6" opacity="0.55"/>
+        <!-- ground shadow -->
+        <ellipse cx="200" cy="248" rx="92" ry="9" fill="#3D2A1F" opacity="0.14"/>
 
-        <!-- curtain top left -->
-        <g class="curtain">
-          <path d="M2 0 L98 0 L92 58 L82 38 L70 60 L58 38 L46 60 L34 38 L22 60 L10 38 L2 60 Z"
-                fill="url(#ginghamRed)" stroke="#7A5439" stroke-width="1.2" stroke-linejoin="round"/>
-          <path d="M2 0 L98 0 L98 8 L2 8 Z" fill="#A8642F" opacity="0.4"/>
-        </g>
-
-        <!-- shelf rail + breads -->
-        <g class="shelf">
-          <rect x="120" y="76" width="380" height="6" fill="#8B5A33" rx="2"/>
-          <rect x="120" y="82" width="380" height="3" fill="#6E3F1F" opacity="0.5" rx="1"/>
-          <!-- mini round bread 1 -->
-          <ellipse cx="160" cy="68" rx="20" ry="14" fill="#D9904E" stroke="#7A5439" stroke-width="1.3"/>
-          <path d="M150 64 q10 -6 20 0" fill="none" stroke="#7A5439" stroke-width="0.8" opacity="0.4"/>
-          <!-- croissant -->
-          <g transform="translate(208 70) rotate(-8)">
-            <path d="M-22 0 q-6 -16 0 -22 q4 -2 8 -2 q4 14 14 18 q14 4 22 -2 q-2 6 -10 8 q-22 4 -34 0 z"
-                  fill="#E8B074" stroke="#7A5439" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M-14 -10 q4 -2 10 0 M-8 -14 q4 -2 10 0" fill="none" stroke="#7A5439" stroke-width="0.8" opacity="0.5"/>
-          </g>
-          <!-- round loaf 2 -->
-          <ellipse cx="260" cy="66" rx="22" ry="16" fill="#C57E40" stroke="#7A5439" stroke-width="1.3"/>
-          <path d="M242 60 q18 -6 36 0" fill="none" stroke="#7A5439" stroke-width="0.8" opacity="0.5"/>
-          <!-- small buns row -->
-          <ellipse cx="306" cy="70" rx="14" ry="10" fill="#E0A06A" stroke="#7A5439" stroke-width="1.2"/>
-          <ellipse cx="334" cy="70" rx="14" ry="10" fill="#D9904E" stroke="#7A5439" stroke-width="1.2"/>
-          <ellipse cx="362" cy="70" rx="14" ry="10" fill="#E0A06A" stroke="#7A5439" stroke-width="1.2"/>
-          <!-- baguettes leaning -->
-          <g transform="translate(410 68) rotate(-72)">
-            <ellipse cx="0" cy="0" rx="34" ry="9" fill="#D9904E" stroke="#7A5439" stroke-width="1.3"/>
-            <path d="M-22 0 l4 -3 M-10 0 l4 -3 M2 0 l4 -3 M14 0 l4 -3" stroke="#7A5439" stroke-width="0.8" opacity="0.6"/>
-          </g>
-          <g transform="translate(424 68) rotate(-78)">
-            <ellipse cx="0" cy="0" rx="32" ry="8" fill="#E0A06A" stroke="#7A5439" stroke-width="1.3"/>
-            <path d="M-20 0 l4 -3 M-8 0 l4 -3 M4 0 l4 -3 M16 0 l4 -3" stroke="#7A5439" stroke-width="0.8" opacity="0.6"/>
-          </g>
-          <!-- melon pan -->
-          <ellipse cx="470" cy="68" rx="18" ry="13" fill="#E8C474" stroke="#7A5439" stroke-width="1.3"/>
-          <path d="M453 64 q17 -10 34 0 M453 68 q17 -10 34 0 M453 72 q17 -10 34 0" fill="none" stroke="#7A5439" stroke-width="0.8" opacity="0.45"/>
-        </g>
-
-        <!-- decorative tile/lace runner -->
-        <g transform="translate(0 196)" class="lace">
-          <rect x="0" y="0" width="520" height="14" fill="url(#counterWood)" stroke="#7A5439" stroke-width="1.5"/>
-          <path d="M0 14 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0 q10 8 20 0"
-                fill="#FFF6EA" stroke="#7A5439" stroke-width="1" opacity="0.95"/>
-        </g>
-
-        <!-- wood paneling under counter -->
-        <rect x="0" y="220" width="520" height="140" fill="url(#paneling)"/>
-        <g stroke="#5C7944" stroke-width="1" opacity="0.4">
-          <line x1="60"  y1="220" x2="60"  y2="360"/>
-          <line x1="160" y1="220" x2="160" y2="360"/>
-          <line x1="260" y1="220" x2="260" y2="360"/>
-          <line x1="360" y1="220" x2="360" y2="360"/>
-          <line x1="460" y1="220" x2="460" y2="360"/>
-        </g>
-
-        <!-- plant (left) -->
-        <g class="plant" transform="translate(28 168)">
-          <ellipse cx="0" cy="42" rx="14" ry="4" fill="#7A5439" opacity="0.2"/>
-          <rect x="-10" y="22" width="20" height="20" rx="2" fill="#A8642F" stroke="#5C3A1B" stroke-width="1.2"/>
-          <path d="M0 22 q-12 -16 -10 -28 q6 4 10 12 q4 -10 12 -14 q2 12 -4 22 q12 -6 16 0 q-8 4 -14 8" fill="#7DA34B" stroke="#5C7944" stroke-width="1.2" stroke-linejoin="round"/>
-          <circle cx="-8" cy="6" r="2" fill="#F4856B"/>
-          <circle cx="6" cy="-2" r="2" fill="#F4856B"/>
-        </g>
-
-        <!-- milk bottles (left of counter) -->
-        <g class="milk" transform="translate(34 230)">
-          <g transform="translate(0 0)">
-            <rect x="-7" y="6" width="14" height="36" rx="2" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.3"/>
-            <rect x="-5" y="0" width="10" height="8" rx="1.5" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.3"/>
-            <rect x="-7" y="22" width="14" height="6" fill="#C95A47"/>
-            <text x="0" y="27" font-family="DotGothic16, monospace" font-size="5" fill="#FFF6EA" text-anchor="middle">MILK</text>
-          </g>
-          <g transform="translate(18 4)">
-            <rect x="-6" y="6" width="12" height="30" rx="2" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.2"/>
-            <rect x="-4" y="0" width="8" height="8" rx="1.5" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.2"/>
-            <rect x="-6" y="18" width="12" height="5" fill="#7DA34B"/>
-          </g>
-        </g>
-
-        <!-- sleeping tabby in basket (right) -->
-        <g class="basket-cat" transform="translate(420 246)">
-          <ellipse cx="0" cy="54" rx="50" ry="6" fill="#3D2A1F" opacity="0.18"/>
-          <!-- basket -->
-          <path d="M-42 22 q4 32 42 32 q38 0 42 -32 z" fill="#B47A3F" stroke="#6E3F1F" stroke-width="1.6" stroke-linejoin="round"/>
-          <g stroke="#7A5439" stroke-width="1" opacity="0.7" fill="none">
-            <path d="M-38 28 q40 -6 76 0"/>
-            <path d="M-36 36 q38 -6 72 0"/>
-            <path d="M-32 44 q34 -6 64 0"/>
-          </g>
-          <!-- cat body curled -->
-          <path d="M-30 24 q-4 -16 14 -20 q14 -2 20 6 q14 -8 26 0 q12 12 4 22 z" fill="#F1D4A8" stroke="#7A5439" stroke-width="1.6" stroke-linejoin="round"/>
-          <!-- stripes -->
-          <path d="M-12 6 q4 4 8 0 M2 4 q4 4 8 0 M18 8 q4 4 8 0" stroke="#A8642F" stroke-width="1.6" fill="none" opacity="0.7"/>
-          <!-- ears -->
-          <path d="M-14 -6 L-18 -16 L-6 -10 Z" fill="#F1D4A8" stroke="#7A5439" stroke-width="1.4" stroke-linejoin="round"/>
-          <path d="M-2 -8 L-4 -18 L8 -12 Z"  fill="#F1D4A8" stroke="#7A5439" stroke-width="1.4" stroke-linejoin="round"/>
-          <!-- face curled in -->
-          <path d="M-10 8 q3 -3 6 0 M0 6 q3 -3 6 0" fill="none" stroke="#3D2A1F" stroke-width="1.4" stroke-linecap="round"/>
-          <circle cx="-8" cy="14" r="3" fill="url(#cheek)"/>
-          <circle cx="4"  cy="12" r="3" fill="url(#cheek)"/>
-          <!-- z's -->
-          <g class="zz" font-family="DotGothic16, monospace" font-size="10" fill="#7A5439" opacity="0.7">
-            <text x="12" y="-22">z</text>
-            <text x="20" y="-30">z</text>
-            <text x="28" y="-40">z</text>
-          </g>
-        </g>
-
-        <!-- tiny Game Boy on counter (right) -->
-        <g class="gameboy" transform="translate(486 200)">
-          <rect x="-14" y="-2" width="22" height="28" rx="3" fill="#E8DCC2" stroke="#7A5439" stroke-width="1.2"/>
-          <rect x="-10" y="2" width="14" height="10" rx="1" fill="#9DB87A"/>
-          <rect x="-9" y="3" width="12" height="8" fill="#7DA34B"/>
-          <circle cx="-10" cy="18" r="1.5" fill="#7A5439"/>
-          <circle cx="-6"  cy="18" r="1.5" fill="#7A5439"/>
-          <circle cx="2"   cy="20" r="1.5" fill="#C95A47"/>
-          <circle cx="-2"  cy="20" r="1.5" fill="#C95A47"/>
-        </g>
-
-        <!-- ────────────── MAIN CHARACTERS ────────────── -->
-
-        <!-- chef cat (far left, waving) -->
-        <g class="char chef-cat" transform="translate(78 224)">
-          <ellipse cx="0" cy="74" rx="34" ry="5" fill="#3D2A1F" opacity="0.22"/>
-          <g class="bob-slow">
+        <!-- ─── CHEF CAT (small, left of anpan) ─── -->
+        <g class="cat" transform="translate(86 188)">
+          <ellipse cx="0" cy="58" rx="28" ry="4" fill="#3D2A1F" opacity="0.16"/>
+          <g class="bob-cat">
             <!-- body -->
-            <path d="M-26 70 q-6 -42 26 -46 q32 4 26 46 z" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.8" stroke-linejoin="round"/>
+            <path d="M-24 56 Q-30 -6 0 -12 Q30 -6 24 56 Z"
+                  fill="#FFF6EA" stroke="#7A5439" stroke-width="1.8" stroke-linejoin="round"/>
             <!-- calico patches -->
-            <ellipse cx="-12" cy="30" rx="10" ry="14" fill="#D98F4E" opacity="0.92"/>
-            <ellipse cx="14"  cy="44" rx="8"  ry="10" fill="#7A5439" opacity="0.85"/>
-            <ellipse cx="6"   cy="64" rx="6"  ry="5"  fill="#D98F4E" opacity="0.85"/>
+            <ellipse cx="-10" cy="24" rx="9" ry="14" fill="#D98F4E" opacity="0.92"/>
+            <ellipse cx="13"  cy="38" rx="7" ry="9"  fill="#7A5439" opacity="0.85"/>
             <!-- bandana -->
-            <path d="M-22 30 q22 14 44 0 l-2 8 q-20 12 -40 0 z" fill="url(#ginghamRed)" stroke="#7A5439" stroke-width="1.3" stroke-linejoin="round"/>
-            <path d="M22 32 q6 -2 10 2 q-2 6 -8 6 z" fill="url(#ginghamRed)" stroke="#7A5439" stroke-width="1.2"/>
+            <path d="M-22 22 Q0 32 22 22 L20 30 Q0 40 -20 30 Z"
+                  fill="url(#ginghamRed)" stroke="#7A5439" stroke-width="1.4" stroke-linejoin="round"/>
             <!-- ears -->
-            <path d="M-18 4 L-22 -14 L-6 -2 Z" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M-18 4 L-22 -14 L-6 -2 Z" fill="#F4A578" opacity="0.7" transform="scale(0.55) translate(-12 -2)"/>
-            <path d="M14 0 L22 -16 L4 -6 Z"   fill="#FFF6EA" stroke="#7A5439" stroke-width="1.5" stroke-linejoin="round"/>
-            <!-- toque (chef hat) -->
-            <g transform="translate(-2 -10)">
-              <ellipse cx="0" cy="0" rx="20" ry="6" fill="#FFFCF0" stroke="#7A5439" stroke-width="1.4"/>
-              <path d="M-18 0 q-2 -22 8 -22 q4 -8 12 -4 q12 -4 14 8 q8 0 6 14 z" fill="#FFFCF0" stroke="#7A5439" stroke-width="1.4" stroke-linejoin="round"/>
+            <path d="M-15 -6 L-19 -20 L-4 -10 Z" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.5" stroke-linejoin="round"/>
+            <path d="M14 -8 L20 -22 L4 -12 Z"    fill="#FFF6EA" stroke="#7A5439" stroke-width="1.5" stroke-linejoin="round"/>
+            <!-- chef toque -->
+            <g transform="translate(0 -18)">
+              <ellipse cx="0" cy="0" rx="18" ry="5" fill="#FFFCF0" stroke="#7A5439" stroke-width="1.4"/>
+              <path d="M-16 0 Q-19 -18 -8 -20 Q-4 -27 4 -23 Q11 -28 15 -17 Q22 -14 17 0 Z"
+                    fill="#FFFCF0" stroke="#7A5439" stroke-width="1.4" stroke-linejoin="round"/>
             </g>
             <!-- face -->
-            <circle cx="-10" cy="20" r="5" fill="url(#cheek)"/>
-            <circle cx="12"  cy="20" r="5" fill="url(#cheek)"/>
-            <path d="M-12 14 q3 -3 6 0" fill="none" stroke="#2A1A10" stroke-width="1.8" stroke-linecap="round"/>
-            <path d="M8 14 q3 -3 6 0"   fill="none" stroke="#2A1A10" stroke-width="1.8" stroke-linecap="round"/>
-            <!-- happy mouth -->
-            <path d="M-3 22 q3 3 6 0" fill="none" stroke="#2A1A10" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="-9" cy="10" r="5" fill="url(#cheek)"/>
+            <circle cx="11" cy="10" r="5" fill="url(#cheek)"/>
+            <g class="cat-eyes">
+              <path d="M-12 4 Q-9 1 -6 4" fill="none" stroke="#2A1A10" stroke-width="1.7" stroke-linecap="round"/>
+              <path d="M6 4 Q9 1 12 4"   fill="none" stroke="#2A1A10" stroke-width="1.7" stroke-linecap="round"/>
+            </g>
+            <path d="M-2 12 Q0 14 2 12" fill="none" stroke="#2A1A10" stroke-width="1.4" stroke-linecap="round"/>
             <!-- waving paw -->
-            <g class="wave-paw" style="transform-origin: 28px 50px;">
-              <ellipse cx="28" cy="50" rx="9" ry="7" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.6"/>
-              <path d="M22 47 q3 -2 5 0 M26 44 q3 -2 5 0 M30 44 q3 -2 5 0" stroke="#7A5439" stroke-width="0.9" fill="none"/>
+            <g class="wave-paw">
+              <ellipse cx="22" cy="30" rx="7" ry="5.5" fill="#FFF6EA" stroke="#7A5439" stroke-width="1.5"/>
+              <path d="M18 28 q2 -2 4 0 M22 26 q2 -2 4 0" stroke="#7A5439" stroke-width="0.8" fill="none"/>
             </g>
           </g>
         </g>
 
-        <!-- ANPAN (left of center) -->
-        <g class="char anpan" transform="translate(186 232)">
-          <ellipse cx="0" cy="74" rx="58" ry="6" fill="#3D2A1F" opacity="0.22"/>
-          <g class="bob-a">
+        <!-- ─── ANPAN (main, centered right) ─── -->
+        <g class="anpan" transform="translate(218 150)">
+          <g class="bob-anpan">
             <!-- body -->
-            <path d="M-52 28
-                     C -62 -32, 24 -54, 44 -34
-                     C 70 -28, 64 38, 44 56
-                     C 60 78, 6 84, -14 70
-                     C -54 76, -76 38, -56 18
-                     C -64 8, -60 30, -52 28 Z"
-                  fill="url(#anpanFill)" stroke="#6E3F1F" stroke-width="2.2" stroke-linejoin="round"/>
-            <!-- top glaze -->
-            <ellipse cx="-14" cy="-20" rx="34" ry="14" fill="url(#shine)"/>
-            <!-- sesame -->
-            <g fill="#5C3A1B" opacity="0.85">
-              <ellipse cx="-22" cy="-30" rx="2.4" ry="1.5" transform="rotate(-20 -22 -30)"/>
-              <ellipse cx="-2"  cy="-38" rx="2.4" ry="1.5" transform="rotate(15 -2 -38)"/>
-              <ellipse cx="22"  cy="-30" rx="2.4" ry="1.5" transform="rotate(-10 22 -30)"/>
-              <ellipse cx="32"  cy="-12" rx="2.4" ry="1.5" transform="rotate(28 32 -12)"/>
-              <ellipse cx="-38" cy="-8"  rx="2.4" ry="1.5" transform="rotate(40 -38 -8)"/>
-              <ellipse cx="38"  cy="14"  rx="2.4" ry="1.5" transform="rotate(-30 38 14)"/>
-            </g>
-            <!-- scarf gingham bow -->
-            <g transform="translate(-2 46)">
-              <path d="M-40 0 q40 12 80 0 l-4 10 q-38 12 -72 0 z" fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.4" stroke-linejoin="round"/>
-              <path d="M-4 -3 q-6 14 -16 16 q4 6 16 4 z" fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.2"/>
-              <path d="M4 -3 q6 14 16 16 q-4 6 -16 4 z"  fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.2"/>
-              <circle r="3" fill="#C95A47"/>
+            <ellipse cx="0" cy="0" rx="78" ry="72" fill="url(#anpanFill)" stroke="#6E3F1F" stroke-width="2.2"/>
+            <!-- glaze shine -->
+            <ellipse cx="-22" cy="-30" rx="36" ry="18" fill="url(#anpanShine)"/>
+            <!-- sesame seeds (sparse, intentional placement) -->
+            <g fill="#5C3A1B" opacity="0.88">
+              <ellipse cx="-26" cy="-42" rx="2.6" ry="1.6" transform="rotate(-18 -26 -42)"/>
+              <ellipse cx="2"   cy="-52" rx="2.6" ry="1.6" transform="rotate(8 2 -52)"/>
+              <ellipse cx="32"  cy="-40" rx="2.6" ry="1.6" transform="rotate(-22 32 -40)"/>
+              <ellipse cx="54"  cy="-12" rx="2.6" ry="1.6" transform="rotate(30 54 -12)"/>
+              <ellipse cx="-54" cy="-8"  rx="2.6" ry="1.6" transform="rotate(-38 -54 -8)"/>
+              <ellipse cx="44"  cy="22"  rx="2.6" ry="1.6" transform="rotate(20 44 22)"/>
+              <ellipse cx="-40" cy="32"  rx="2.6" ry="1.6" transform="rotate(-15 -40 32)"/>
             </g>
             <!-- cheeks -->
-            <circle cx="-26" cy="14" r="9" fill="url(#cheek)"/>
-            <circle cx="22"  cy="14" r="9" fill="url(#cheek)"/>
+            <circle cx="-34" cy="14" r="12" fill="url(#cheek)"/>
+            <circle cx="34"  cy="14" r="12" fill="url(#cheek)"/>
             <!-- eyes -->
-            <g class="eyes-a">
-              <ellipse cx="-14" cy="-2" rx="5" ry="6.5" fill="#2A1A10"/>
-              <ellipse cx="14"  cy="-2" rx="5" ry="6.5" fill="#2A1A10"/>
-              <circle cx="-12" cy="-5" r="2" fill="#FFF6EA"/>
-              <circle cx="16"  cy="-5" r="2" fill="#FFF6EA"/>
-              <circle cx="-15" cy="0" r="0.8" fill="#FFF6EA" opacity="0.7"/>
-            </g>
-            <!-- mouth (open smile) -->
-            <path d="M-6 16 q6 8 12 0 q-3 -2 -12 0 z" fill="#5C2A1A" stroke="#3D2114" stroke-width="1.5" stroke-linejoin="round"/>
-            <path d="M-4 18 q4 4 8 0" fill="#F4856B" opacity="0.85"/>
-            <!-- tiny arms -->
-            <ellipse cx="-58" cy="28" rx="8" ry="6" fill="url(#anpanFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-            <ellipse cx="58"  cy="28" rx="8" ry="6" fill="url(#anpanFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-          </g>
-        </g>
-
-        <!-- SHOKUPAN (center, tallest, with strawberry) -->
-        <g class="char shoku" transform="translate(282 196)">
-          <ellipse cx="0" cy="118" rx="56" ry="6" fill="#3D2A1F" opacity="0.22"/>
-          <g class="bob-b">
-            <!-- crust crown (top three bumps) -->
-            <path d="M-46 -10
-                     q4 -38 18 -38 q4 12 6 30
-                     q4 -34 18 -36 q4 14 6 32
-                     q4 -32 16 -32 q12 4 10 38 z"
-                  fill="url(#shokuCrown)" stroke="#6E3F1F" stroke-width="2.2" stroke-linejoin="round"/>
-            <!-- body (white milk bread) -->
-            <path d="M-50 -10 q0 -2 4 -2 l92 0 q4 0 4 2 l0 108 q0 6 -6 6 l-88 0 q-6 0 -6 -6 z"
-                  fill="url(#shokuFill)" stroke="#6E3F1F" stroke-width="2.2" stroke-linejoin="round"/>
-            <!-- side crust gradient -->
-            <path d="M-50 -8 q-2 28 0 56 q-2 28 0 50" fill="none" stroke="#D9904E" stroke-width="1.6" opacity="0.5"/>
-            <path d="M50 -8 q2 28 0 56 q2 28 0 50"   fill="none" stroke="#D9904E" stroke-width="1.6" opacity="0.5"/>
-            <!-- whipped cream dollop -->
-            <g transform="translate(20 -38)">
-              <path d="M-14 4 q0 -10 8 -12 q2 -8 8 -4 q6 -2 6 6 q8 0 6 10 q-2 4 -8 4 q-14 2 -20 -4 z"
-                    fill="#FFFCF0" stroke="#6E3F1F" stroke-width="1.3" stroke-linejoin="round"/>
-              <path d="M-10 -2 q4 -4 8 0 M0 -6 q4 -2 6 2" fill="none" stroke="#E5C795" stroke-width="0.9"/>
-            </g>
-            <!-- strawberry -->
-            <g transform="translate(26 -52)">
-              <path d="M-7 0 q0 14 7 18 q7 -4 7 -18 q-7 4 -14 0 z" fill="#E64C3C" stroke="#7A1818" stroke-width="1.3" stroke-linejoin="round"/>
-              <g fill="#FFF6EA">
-                <ellipse cx="-2" cy="6" rx="0.8" ry="1.2"/>
-                <ellipse cx="3"  cy="8" rx="0.8" ry="1.2"/>
-                <ellipse cx="0"  cy="12" rx="0.8" ry="1.2"/>
-                <ellipse cx="-4" cy="14" rx="0.8" ry="1.2"/>
-                <ellipse cx="4"  cy="14" rx="0.8" ry="1.2"/>
-              </g>
-              <!-- leaves -->
-              <path d="M-8 -2 q4 -8 0 -10 q4 4 6 0 q-2 6 -4 8 q4 -4 8 0 q-6 4 -10 4 z" fill="#7DA34B" stroke="#5C7944" stroke-width="1"/>
-            </g>
-            <!-- cheeks -->
-            <circle cx="-26" cy="38" r="9" fill="url(#cheek)"/>
-            <circle cx="26"  cy="38" r="9" fill="url(#cheek)"/>
-            <!-- eyes -->
-            <g class="eyes-b">
-              <ellipse cx="-14" cy="22" rx="5" ry="6.5" fill="#2A1A10"/>
-              <ellipse cx="14"  cy="22" rx="5" ry="6.5" fill="#2A1A10"/>
-              <circle cx="-12" cy="19" r="2"   fill="#FFF6EA"/>
-              <circle cx="16"  cy="19" r="2"   fill="#FFF6EA"/>
-            </g>
-            <!-- happy mouth -->
-            <path d="M-7 42 q7 7 14 0 q-3 -2 -14 0 z" fill="#5C2A1A" stroke="#3D2114" stroke-width="1.5" stroke-linejoin="round"/>
-            <!-- tiny stub arms -->
-            <ellipse cx="-50" cy="50" rx="7" ry="6" fill="url(#shokuFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-            <ellipse cx="50"  cy="50" rx="7" ry="6" fill="url(#shokuFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-            <!-- tiny stub feet -->
-            <ellipse cx="-22" cy="104" rx="10" ry="6" fill="url(#shokuFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-            <ellipse cx="22"  cy="104" rx="10" ry="6" fill="url(#shokuFill)" stroke="#6E3F1F" stroke-width="1.8"/>
-          </g>
-        </g>
-
-        <!-- BAGUETTE (right) -->
-        <g class="char baguette" transform="translate(394 188)">
-          <ellipse cx="0" cy="128" rx="32" ry="6" fill="#3D2A1F" opacity="0.22"/>
-          <g class="bob-c">
-            <!-- body -->
-            <path d="M-26 -32 q26 -10 52 0 q4 12 0 144 q-26 8 -52 0 q-4 -12 0 -144 z"
-                  fill="url(#bagFill)" stroke="#6E3F1F" stroke-width="2.2" stroke-linejoin="round"/>
-            <!-- scoring -->
-            <g stroke="#5C3A1B" stroke-width="1.6" fill="none" opacity="0.7">
-              <path d="M-16 -10 q8 -4 16 0 q-2 6 -6 8"/>
-              <path d="M-16 14 q8 -4 16 0 q-2 6 -6 8"/>
-              <path d="M-16 38 q8 -4 16 0 q-2 6 -6 8"/>
-              <path d="M-16 62 q8 -4 16 0 q-2 6 -6 8"/>
-              <path d="M-16 86 q8 -4 16 0 q-2 6 -6 8"/>
-            </g>
-            <!-- beret (green) -->
-            <g transform="translate(0 -38)">
-              <ellipse cx="0" cy="0" rx="30" ry="10" fill="#7DA34B" stroke="#5C7944" stroke-width="1.8"/>
-              <ellipse cx="0" cy="-2" rx="24" ry="9" fill="#9DB87A" stroke="#5C7944" stroke-width="1.4"/>
-              <circle cx="-1" cy="-8" r="3" fill="#5C7944"/>
-              <!-- little stem -->
-              <rect x="-1" y="-12" width="2" height="4" fill="#5C7944"/>
-            </g>
-            <!-- gingham scarf -->
-            <g transform="translate(0 92)">
-              <path d="M-28 0 q28 14 56 0 l-4 14 q-26 16 -48 0 z" fill="url(#ginghamGreen)" stroke="#5C7944" stroke-width="1.4" stroke-linejoin="round"/>
-              <path d="M-2 -2 q-6 14 -16 16 q4 6 16 4 z" fill="url(#ginghamGreen)" stroke="#5C7944" stroke-width="1.2"/>
-              <path d="M2 -2 q6 14 16 16 q-4 6 -16 4 z"  fill="url(#ginghamGreen)" stroke="#5C7944" stroke-width="1.2"/>
-              <circle r="3" fill="#5C7944"/>
-            </g>
-            <!-- cheeks -->
-            <circle cx="-12" cy="-2" r="7" fill="url(#cheek)"/>
-            <circle cx="12"  cy="-2" r="7" fill="url(#cheek)"/>
-            <!-- eyes -->
-            <g class="eyes-c">
-              <ellipse cx="-6" cy="-12" rx="3.5" ry="5" fill="#2A1A10"/>
-              <ellipse cx="6"  cy="-12" rx="3.5" ry="5" fill="#2A1A10"/>
-              <circle cx="-5" cy="-14" r="1.4" fill="#FFF6EA"/>
-              <circle cx="7"  cy="-14" r="1.4" fill="#FFF6EA"/>
+            <g class="anpan-eyes">
+              <ellipse cx="-18" cy="-6" rx="6"   ry="7.5" fill="#2A1A10"/>
+              <ellipse cx="18"  cy="-6" rx="6"   ry="7.5" fill="#2A1A10"/>
+              <circle  cx="-16" cy="-10" r="2.4" fill="#FFF6EA"/>
+              <circle  cx="20"  cy="-10" r="2.4" fill="#FFF6EA"/>
+              <circle  cx="-20" cy="-4"  r="0.9" fill="#FFF6EA" opacity="0.7"/>
             </g>
             <!-- mouth -->
-            <path d="M-4 -2 q4 4 8 0 q-2 -1 -8 0 z" fill="#5C2A1A" stroke="#3D2114" stroke-width="1.2"/>
-            <!-- waving stub arm -->
-            <g class="wave-paw-b" style="transform-origin: 26px -6px;">
-              <ellipse cx="32" cy="-12" rx="9" ry="7" fill="url(#bagFill)" stroke="#6E3F1F" stroke-width="1.8"/>
+            <path class="anpan-mouth" d="M-9 16 Q0 26 9 16 Q4 20 -9 16 Z"
+                  fill="#5C2A1A" stroke="#3D2114" stroke-width="1.8" stroke-linejoin="round"/>
+            <!-- tongue -->
+            <path d="M-4 20 Q0 24 4 20" fill="#F08368" opacity="0.95"/>
+            <!-- gingham scarf bow -->
+            <g transform="translate(0 60)">
+              <path d="M-46 0 Q0 18 46 0 L42 14 Q0 28 -42 14 Z"
+                    fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.6" stroke-linejoin="round"/>
+              <path d="M-4 -2 Q-8 14 -22 16 Q-14 22 -2 18 Z"
+                    fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.4" stroke-linejoin="round"/>
+              <path d="M4 -2 Q8 14 22 16 Q14 22 2 18 Z"
+                    fill="url(#ginghamRed)" stroke="#6E3F1F" stroke-width="1.4" stroke-linejoin="round"/>
+              <circle r="3.5" fill="#A8412E"/>
             </g>
-          </g>
-        </g>
-
-        <!-- choux peeking between anpan & shoku -->
-        <g class="char choux" transform="translate(238 264)">
-          <g class="bob-d">
-            <ellipse cx="0" cy="0" rx="20" ry="16" fill="#F8E2B4" stroke="#7A5439" stroke-width="1.6"/>
-            <path d="M-14 -8 q6 -8 12 -2 q4 -8 12 -2 q4 -6 8 4" fill="none" stroke="#7A5439" stroke-width="1" opacity="0.5"/>
-            <circle cx="-7" cy="2" r="1.8" fill="#2A1A10"/>
-            <circle cx="7"  cy="2" r="1.8" fill="#2A1A10"/>
-            <circle cx="-9" cy="6" r="2.5" fill="url(#cheek)"/>
-            <circle cx="9"  cy="6" r="2.5" fill="url(#cheek)"/>
-            <path d="M-2 6 q2 2 4 0" fill="none" stroke="#3D2114" stroke-width="1.2" stroke-linecap="round"/>
           </g>
         </g>
 
@@ -467,7 +187,7 @@
   </main>
 
   <footer class="tiny-foot">
-    <span>baked by judy · prototype 0.2</span>
+    <span>baked by judy · prototype 0.3</span>
   </footer>
 
   <script src="baking.js" defer></script>

@@ -13,11 +13,8 @@
 
   // ─── speakers ─────────────────────────────────────────────────────
   const SPEAKERS = {
-    anpan:   { jp: 'あんパン',   en: 'anpan',     portrait: '🍞', tag: '★ baker' },
-    shoku:   { jp: '食パン',     en: 'shokupan',  portrait: '🍞', tag: '☁ tester' },
-    choux:   { jp: 'シュー',     en: 'choux',     portrait: '🥐', tag: '♡ sweet' },
-    bag:     { jp: 'バゲット',   en: 'baguette',  portrait: '🥖', tag: '☆ critic' },
-    cat:     { jp: 'ねこシェフ', en: 'chef cat',  portrait: '🐱', tag: '♕ chef'   },
+    anpan: { jp: 'あんパン',   en: 'anpan',     portrait: '🍞', tag: '★ baker' },
+    cat:   { jp: 'ねこシェフ', en: 'chef cat',  portrait: '🐱', tag: '♕ chef'  },
   };
 
   function setSpeaker(key) {
@@ -88,6 +85,24 @@
     return b;
   }
 
+  function makeSurpriseBtn(label, onClick) {
+    const b = document.createElement('button');
+    b.className = 'btn-surprise';
+    b.type = 'button';
+    b.innerHTML = `<span class="die">🎲</span><span>${label}</span>`;
+    b.addEventListener('click', () => { Audio.blip(1400, 0.07); onClick(); });
+    return b;
+  }
+
+  function shuffled(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
   // ─── step 0: intro ────────────────────────────────────────────────
   function stepIntro() {
     state.step = 0;
@@ -112,7 +127,7 @@
   function stepTexture() {
     state.step = 1;
     setProgress(1);
-    setSpeaker('shoku');
+    setSpeaker('anpan');
     clearChoices();
     typeText(
       "first — what texture are you in the mood for?\n" +
@@ -148,6 +163,16 @@
       if (t.en !== lastBucket) { Audio.blip(880, 0.06); lastBucket = t.en; }
     });
 
+    $choices.appendChild(makeSurpriseBtn('surprise me with a texture', () => {
+      state.texture = Math.floor(Math.random() * 101);
+      slider.value = state.texture;
+      const t = textureLabel(state.texture);
+      big.textContent = t.en;
+      note.textContent = t.note;
+      lastBucket = t.en;
+      setTimeout(() => stepFlavor(), 480);
+    }));
+
     const row = document.createElement('div');
     row.className = 'confirm-row';
     const next = document.createElement('button');
@@ -179,7 +204,7 @@
   function stepFlavor() {
     state.step = 2;
     setProgress(2);
-    setSpeaker('choux');
+    setSpeaker('anpan');
     clearChoices();
     typeText(
       "next — what flavors are calling you?\n" +
@@ -202,6 +227,13 @@
       });
       $choices.appendChild(btn);
     });
+
+    $choices.appendChild(makeSurpriseBtn('surprise me with a flavor combo', () => {
+      state.flavors = new Set();
+      const n = 1 + Math.floor(Math.random() * 3);
+      shuffled(FLAVORS.map(f => f.id)).slice(0, n).forEach(id => state.flavors.add(id));
+      setTimeout(() => stepSize(), 400);
+    }));
 
     const row = document.createElement('div');
     row.className = 'confirm-row';
@@ -242,7 +274,7 @@
   function stepSize() {
     state.step = 3;
     setProgress(3);
-    setSpeaker('bag');
+    setSpeaker('anpan');
     clearChoices();
     typeText("how big should it be?\nlittle pop-in-mouth, or a loaf to tear and share?");
 
@@ -259,6 +291,11 @@
       });
       $choices.appendChild(btn);
     });
+
+    $choices.appendChild(makeSurpriseBtn('surprise me with a size', () => {
+      state.size = pick(['bite', 'handful', 'arm']);
+      setTimeout(() => stepRestrictions(), 350);
+    }));
 
     const row = document.createElement('div');
     row.className = 'confirm-row';
@@ -303,6 +340,16 @@
       });
       $choices.appendChild(btn);
     });
+
+    $choices.appendChild(makeSurpriseBtn('surprise me — random restrictions', () => {
+      state.restrictions = new Set();
+      // 55% chance no restrictions; otherwise 1–2 random
+      if (Math.random() > 0.55) {
+        const n = 1 + Math.floor(Math.random() * 2);
+        shuffled(RESTRICTIONS.map(r => r.id)).slice(0, n).forEach(id => state.restrictions.add(id));
+      }
+      setTimeout(() => stepRecipe(), 400);
+    }));
 
     const row = document.createElement('div');
     row.className = 'confirm-row';

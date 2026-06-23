@@ -209,60 +209,31 @@ body::before {
 }
 
 /* character animation groups */
-.bob-slow { transform-origin: center bottom; animation: bob-slow 4.4s ease-in-out infinite; }
-.bob-a    { transform-origin: center bottom; animation: bob-a 3.6s ease-in-out infinite; }
-.bob-b    { transform-origin: center bottom; animation: bob-b 3.9s ease-in-out infinite -0.4s; }
-.bob-c    { transform-origin: center bottom; animation: bob-c 4.1s ease-in-out infinite -0.8s; }
-.bob-d    { transform-origin: center bottom; animation: bob-d 3.2s ease-in-out infinite -0.2s; }
+.bob-anpan { transform-origin: center bottom; animation: bob-anpan 3.8s ease-in-out infinite; }
+.bob-cat   { transform-origin: center bottom; animation: bob-cat 4.2s ease-in-out infinite -0.6s; }
 
-@keyframes bob-slow {
-  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
-  50%      { transform: translateY(-3px) rotate(1deg); }
-}
-@keyframes bob-a {
-  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+@keyframes bob-anpan {
+  0%, 100% { transform: translateY(0)    rotate(-1.5deg); }
   50%      { transform: translateY(-5px) rotate(1.5deg); }
 }
-@keyframes bob-b {
-  0%, 100% { transform: translateY(0) rotate(1deg); }
-  50%      { transform: translateY(-6px) rotate(-1deg); }
-}
-@keyframes bob-c {
-  0%, 100% { transform: translateY(0) rotate(-1deg); }
-  50%      { transform: translateY(-4px) rotate(1.5deg); }
-}
-@keyframes bob-d {
-  0%, 100% { transform: translateY(2px) rotate(-2deg); }
+@keyframes bob-cat {
+  0%, 100% { transform: translateY(0)    rotate(-2deg); }
   50%      { transform: translateY(-4px) rotate(2deg); }
 }
 
-/* eye blinks (staggered) */
-.eyes-a { animation: blink 4.8s infinite; transform-origin: center; transform-box: fill-box; }
-.eyes-b { animation: blink 5.4s infinite -1.2s; transform-origin: center; transform-box: fill-box; }
-.eyes-c { animation: blink 6s infinite -2.4s; transform-origin: center; transform-box: fill-box; }
+/* eye blinks */
+.anpan-eyes { animation: blink 4.8s infinite; transform-origin: center; transform-box: fill-box; }
+.cat-eyes   { animation: blink 5.4s infinite -1.2s; transform-origin: center; transform-box: fill-box; }
 @keyframes blink {
   0%, 92%, 100% { transform: scaleY(1); }
   94%, 98%      { transform: scaleY(0.1); }
 }
 
-/* waving paws */
-.wave-paw   { animation: wave 2.6s ease-in-out infinite; transform-origin: 28px 50px; transform-box: fill-box; }
-.wave-paw-b { animation: wave 2.4s ease-in-out infinite -0.5s; transform-origin: 26px -6px; transform-box: fill-box; }
+/* waving paw */
+.wave-paw { animation: wave 2.6s ease-in-out infinite; transform-origin: 22px 30px; transform-box: fill-box; }
 @keyframes wave {
   0%, 100% { transform: rotate(-10deg); }
   50%      { transform: rotate(22deg); }
-}
-
-/* sleep z's */
-.zz text { animation: zz-rise 3.4s ease-in-out infinite; }
-.zz text:nth-child(1) { animation-delay: 0s; }
-.zz text:nth-child(2) { animation-delay: 0.6s; }
-.zz text:nth-child(3) { animation-delay: 1.2s; }
-@keyframes zz-rise {
-  0%   { transform: translateY(8px); opacity: 0; }
-  20%  { opacity: 0.9; }
-  80%  { opacity: 0.7; }
-  100% { transform: translateY(-12px); opacity: 0; }
 }
 
 /* progress */
@@ -554,6 +525,40 @@ body::before {
   border: 2px dashed var(--line);
 }
 .btn-ghost:hover { background: var(--milk); color: var(--cocoa); }
+
+/* surprise-me — accent green, slightly playful */
+.btn-surprise {
+  font-family: var(--maru);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--matcha-deep);
+  background: linear-gradient(180deg, #D5E5B0 0%, #B4C879 100%);
+  border: 2px solid var(--matcha-deep);
+  border-radius: 14px;
+  padding: 11px 16px;
+  margin-top: 4px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 2px 0 var(--matcha-deep), 0 6px 14px -8px rgba(92, 121, 68, 0.45);
+  transition: transform 0.2s var(--ease-bounce), background 0.2s;
+  animation: slide-in 0.5s var(--ease-out) both;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-surprise:hover {
+  transform: translateY(-2px) rotate(-1deg);
+  background: linear-gradient(180deg, #C5DCA0 0%, #A0B868 100%);
+}
+.btn-surprise:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--matcha-deep); }
+.btn-surprise .die {
+  display: inline-block;
+  animation: die-shake 2.4s ease-in-out infinite;
+}
+@keyframes die-shake {
+  0%, 85%, 100% { transform: rotate(0); }
+  88%           { transform: rotate(-18deg); }
+  92%           { transform: rotate(20deg); }
+  96%           { transform: rotate(-10deg); }
+}
 
 /* ─── recipe card ─── */
 .recipe {
