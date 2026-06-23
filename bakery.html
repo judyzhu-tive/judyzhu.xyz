@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Judy's Bakery | ちいさなベーカリー</title>
+  <meta name="description" content="A tiny English and Japanese bakery recipe picker with warm bread ideas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;500;600&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="bakery.css" />
+</head>
+<body>
+  <main class="bakery-shell">
+    <section class="bakery-card" aria-labelledby="bakery-title">
+      <header class="bakery-top">
+        <a class="home-link" href="./index.html">judy zhu</a>
+        <button id="sound-btn" class="sound-btn" type="button" aria-pressed="false">
+          <span class="sound-dot"></span>
+          sound
+        </button>
+      </header>
+
+      <div class="bakery-stage">
+        <div class="brand-lockup">
+          <p class="eyebrow">ちいさなベーカリー</p>
+          <h1 id="bakery-title">Judy's Bakery</h1>
+        </div>
+
+        <aside class="speaker" aria-live="polite">
+          <div id="speaker-portrait" class="speaker-portrait" aria-hidden="true"></div>
+          <div>
+            <p id="speaker-name" class="speaker-name"></p>
+            <p id="speaker-tag" class="speaker-tag"></p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="progress" aria-label="recipe progress">
+        <span class="dot active"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+      </div>
+
+      <section class="dialog" aria-live="polite">
+        <p id="dialog-text"></p>
+        <span id="dialog-cursor" class="dialog-cursor"></span>
+      </section>
+
+      <section id="choices" class="choices" aria-label="bakery choices"></section>
+    </section>
+  </main>
+
+  <script src="bakery.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,939 @@
+/* judy's bakery — refined vanilla flow */
+
+(() => {
+  const $dialog = document.getElementById('dialog-text');
+  const $cursor = document.getElementById('dialog-cursor');
+  const $choices = document.getElementById('choices');
+  const $progress = document.querySelectorAll('.progress .dot');
+  const $speakerName = document.getElementById('speaker-name');
+  const $speakerTag = document.getElementById('speaker-tag');
+  const $speakerPortrait = document.getElementById('speaker-portrait');
+  const $soundBtn = document.getElementById('sound-btn');
+
+  const state = {
+    texture: 50,
+    flavors: new Set(),
+    size: null,
+    restrictions: new Set(),
+  };
+
+  const SPEAKERS = {
+    anpan: {
+      jp: 'あんパン',
+      en: 'anpan baker',
+      tag: 'soft bread guide',
+      svg: breadSvg,
+    },
+    cat: {
+      jp: 'ねこシェフ',
+      en: 'chef cat',
+      tag: 'recipe finisher',
+      svg: catSvg,
+    },
+  };
+
+  const FLAVORS = [
+    { id: 'savory', icon: 'salt', label: 'savory', hint: 'miso, cheese, onion, tomato' },
+    { id: 'bitter', icon: 'tea', label: 'toasty bitter', hint: 'matcha, cocoa, sesame, kinako' },
+    { id: 'sweet', icon: 'jam', label: 'sweet', hint: 'anko, custard, fruit, honey' },
+    { id: 'sour', icon: 'citrus', label: 'bright sour', hint: 'yuzu, lemon, raspberry, ume' },
+  ];
+
+  const SIZES = [
+    { id: 'bite', icon: 'small', label: 'bite size', hint: 'tiny buns for a shared plate' },
+    { id: 'handful', icon: 'hand', label: 'handful', hint: 'one proper bakery serving' },
+    { id: 'arm', icon: 'long', label: 'long loaf', hint: 'tear-and-share bread' },
+  ];
+
+  const RESTRICTIONS = [
+    { id: 'gluten', icon: 'wheat', label: 'gluten-free', hint: 'avoid wheat, rye, barley' },
+    { id: 'dairy', icon: 'milk', label: 'dairy-free', hint: 'avoid milk, butter, cream' },
+    { id: 'egg', icon: 'egg', label: 'egg-free', hint: 'avoid yolk, white, and wash' },
+    { id: 'meat', icon: 'leaf', label: 'meat-free', hint: 'vegetarian-friendly fillings' },
+    { id: 'caffeine', icon: 'moon', label: 'caffeine-free', hint: 'avoid matcha, cocoa, coffee' },
+    { id: 'nut', icon: 'seed', label: 'nut-free', hint: 'avoid walnut, almond, cashew' },
+  ];
+
+  const BASES = {
+    cloud: [
+      {
+        name: 'Hokkaido Cloud Toast',
+        jp: 'ほっかいどうくもパン',
+        contains: ['gluten', 'dairy'],
+        dough: 'Yudane shokupan: flour scalded with boiling water, rested, then folded into a milk dough for a paper-tearing crumb.',
+        ingredients: [
+          'bread flour 300g, with 60g reserved for yudane',
+          'boiling water 60g, milk 130g, cream 30g',
+          'sugar 30g, yeast 5g, butter 30g, salt 4g',
+        ],
+        method: [
+          'Whisk 60g flour with 60g boiling water. Chill the yudane until cool.',
+          'Mix remaining flour, yudane, milk, cream, sugar, yeast, butter, and salt. Knead 12 to 14 minutes.',
+          'Bulk proof 60 minutes. Divide into 3 coils, proof in a pullman tin, then bake at 200 C for 30 minutes.',
+        ],
+      },
+      {
+        name: 'Vanilla Choux Puffs',
+        jp: 'バニラシュー',
+        contains: ['gluten', 'dairy', 'egg'],
+        dough: 'Pate a choux: a cooked panade loosened with whole eggs until glossy and pipeable.',
+        ingredients: [
+          'milk 80g, water 80g, butter 70g, sugar 5g, salt 2g',
+          'flour 95g',
+          'whole eggs 160g, about 3 eggs, using both yolks and whites',
+        ],
+        method: [
+          'Boil milk, water, butter, sugar, and salt. Add flour off heat, then cook 2 minutes to dry the panade.',
+          'Cool 5 minutes. Beat in whole eggs gradually, using yolks and whites together, until the dough ribbons.',
+          'Pipe rounds. Bake 200 C for 25 minutes, then 170 C for 15 minutes without opening the door.',
+        ],
+      },
+    ],
+    fuwafuwa: [
+      {
+        name: 'Milk Pillow Buns',
+        jp: 'ミルクまくらパン',
+        contains: ['gluten', 'dairy'],
+        dough: 'Tangzhong milk bread: a small cooked flour paste keeps the crumb soft for days.',
+        ingredients: [
+          'bread flour 280g, with 20g reserved for tangzhong',
+          'milk 220g total, cream 30g, sugar 28g',
+          'yeast 4g, butter 28g, salt 4g',
+        ],
+        method: [
+          'Cook 20g flour with 90g milk into a paste. Cool.',
+          'Mix paste with remaining ingredients and knead until elastic.',
+          'Proof 60 minutes, shape as buns, proof 50 minutes, bake at 175 C for 22 minutes.',
+        ],
+      },
+    ],
+    pillowy: [
+      {
+        name: 'Butter Moon Brioche',
+        jp: 'つきのブリオッシュ',
+        contains: ['gluten', 'dairy', 'egg'],
+        dough: 'Enriched brioche: slow cold proof, butter worked in late for a plush crumb.',
+        ingredients: [
+          'bread flour 250g, milk 80g, sugar 30g, yeast 5g, salt 5g',
+          'whole eggs 2, using both yolks and whites in the dough',
+          'butter 80g',
+          'egg wash: 1 egg yolk plus 1 tbsp cream for a deeper amber top',
+        ],
+        method: [
+          'Mix flour, whole eggs, milk, sugar, yeast, and salt. Knead 10 minutes.',
+          'Add butter gradually. Cold proof overnight.',
+          'Shape, proof 90 minutes, brush with egg-yolk wash, and bake at 180 C for 16 minutes.',
+        ],
+      },
+      {
+        name: 'Kissaten Melon Pan',
+        jp: 'きっさてんメロンパン',
+        contains: ['gluten', 'dairy', 'egg'],
+        dough: 'Soft milk bread under a tender cookie cap.',
+        ingredients: [
+          'bun: bread flour 240g, milk 130g, sugar 25g, yeast 4g, butter 25g, salt 3g',
+          'cookie cap: flour 80g, butter 40g, sugar 50g',
+          'whole egg 1 for the cookie cap, using yolk and white together',
+        ],
+        method: [
+          'Mix and proof bun dough 60 minutes. Divide into 6.',
+          'Cream butter and sugar. Beat in whole egg, then fold in flour.',
+          'Wrap each bun with cookie dough, score, proof 50 minutes, and bake at 170 C for 14 minutes.',
+        ],
+      },
+    ],
+    laminated: [
+      {
+        name: 'Amber Croissant',
+        jp: 'こはくクロワッサン',
+        contains: ['gluten', 'dairy', 'egg'],
+        dough: 'Classic lamination: detrempe wrapped around a butter block and folded into fine layers.',
+        ingredients: [
+          'bread flour 250g, water 110g, milk 50g, sugar 25g, yeast 6g, salt 5g',
+          'butter 20g in dough, butter block 140g',
+          'egg wash: 1 egg yolk plus 1 tbsp cream; reserve the egg white for meringue or financiers',
+        ],
+        method: [
+          'Mix detrempe and chill 1 hour. Enclose butter block.',
+          'Roll and single-fold 3 times, chilling 30 minutes between folds.',
+          'Roll to 3mm, cut triangles, proof 2 hours, brush twice with yolk wash, and bake 220 C then 190 C.',
+        ],
+      },
+      {
+        name: 'Butter-Layer Tartine',
+        jp: 'バターのパイタルティーヌ',
+        contains: ['gluten', 'dairy'],
+        dough: 'Puff pastry-style layers: lean dough folded around butter, crisp and clean without egg in the dough.',
+        ingredients: [
+          'flour 250g, water 125g, salt 5g',
+          'butter block 200g',
+          'optional shine: milk brushed lightly on the top; no egg yolk or white required',
+        ],
+        method: [
+          'Mix flour, water, and salt. Rest 30 minutes.',
+          'Enclose butter and single-fold 5 to 6 times, chilling between folds.',
+          'Roll to 3mm, cut rectangles, dock, and bake under a second tray at 200 C for 18 minutes.',
+        ],
+      },
+    ],
+    tender: [
+      {
+        name: 'Olive Oil Focaccia',
+        jp: 'オリーブフォカッチャ',
+        contains: ['gluten'],
+        dough: 'High-hydration olive oil dough with dimples that hold salt and warm oil.',
+        ingredients: [
+          'bread flour 400g, water 320g, yeast 3g',
+          'olive oil 30g plus more for the tray',
+          'salt 8g, flaky salt to finish',
+        ],
+        method: [
+          'Mix and fold every 30 minutes for 2 hours.',
+          'Cold proof 12 to 24 hours. Press into an oiled tray.',
+          'Dimple, drizzle with oil, salt generously, and bake at 240 C for 18 minutes.',
+        ],
+      },
+    ],
+    rustic: [
+      {
+        name: 'Garden Campagne',
+        jp: 'にわのカンパーニュ',
+        contains: ['gluten'],
+        dough: 'Country loaf: long ferment, deep crust, gentle acidity.',
+        ingredients: [
+          'bread flour 360g, whole wheat 30g, rye 10g',
+          'water 300g, levain 80g, salt 8g',
+        ],
+        method: [
+          'Autolyse flour and water 40 minutes. Add levain and salt.',
+          'Fold 4 times over 3 hours. Shape into a banneton.',
+          'Cold proof overnight. Bake in a covered pot at 250 C, then uncovered at 230 C.',
+        ],
+      },
+    ],
+    stodgy: [
+      {
+        name: 'Long Table Baguette',
+        jp: 'ながいバゲット',
+        contains: ['gluten'],
+        dough: 'Lean baguette: flour, water, salt, yeast, and time.',
+        ingredients: [
+          'T65 or bread flour 400g',
+          'water 280g, yeast 1g, salt 8g',
+        ],
+        method: [
+          'Mix and rest 30 minutes. Add salt, then fold 3 times.',
+          'Cold bulk ferment 18 hours. Divide and shape.',
+          'Proof on a couche 50 minutes. Score and bake at 250 C with heavy steam for 20 minutes.',
+        ],
+      },
+    ],
+  };
+
+  const FLAVOR_ADDINS = {
+    savory: [
+      { text: 'white miso 1 tsp plus softened butter', tags: ['dairy'] },
+      { text: 'caramelized onion 45g plus thyme', tags: [] },
+      { text: 'sun-dried tomato 30g plus olive oil', tags: [] },
+      { text: 'smoky mushroom duxelles 55g', tags: [] },
+      { text: 'ham 60g and gouda 45g', tags: ['meat', 'dairy'] },
+    ],
+    bitter: [
+      { text: 'matcha powder 6g', tags: ['caffeine'] },
+      { text: 'cocoa powder 12g and dark chocolate 40g', tags: ['caffeine', 'dairy'] },
+      { text: 'black sesame paste 25g', tags: [] },
+      { text: 'kinako 20g and brown sugar 15g', tags: [] },
+      { text: 'toasted walnut 35g', tags: ['nut'] },
+    ],
+    sweet: [
+      { text: 'anko 90g', tags: [] },
+      { text: 'apple compote 80g', tags: [] },
+      { text: 'custard 90g made with egg yolks only; save whites for macarons', tags: ['dairy', 'egg'] },
+      { text: 'roasted strawberry 60g', tags: [] },
+    ],
+    sour: [
+      { text: 'yuzu marmalade 30g', tags: [] },
+      { text: 'lemon zest and sugar', tags: [] },
+      { text: 'raspberry 50g', tags: [] },
+      { text: 'umeboshi paste 1 tsp and shiso', tags: [] },
+    ],
+  };
+
+  const SUB_NOTES = {
+    gluten: 'Gluten-free: use a bread-friendly 1:1 gluten-free blend with 1 tsp xanthan gum per 250g flour. Lower hydration about 10%. Focaccia and choux adapt best; croissants are the hardest.',
+    dairy: 'Dairy-free: use soy or oat milk, vegan butter, and plant cream. For shine, use soy milk with a little maple syrup instead of dairy-based wash.',
+    egg: 'Egg-free: replace whole egg with 1 tbsp ground flax plus 3 tbsp water, or 60g applesauce. Replace egg yolk with 1 tbsp cornstarch, 2 tbsp plant milk, and a pinch of turmeric. Replace egg white with 3 tbsp reduced aquafaba.',
+    meat: 'Meat-free: swap ham, sausage, or bacon for smoky mushroom duxelles, tempeh, or roasted miso eggplant.',
+    caffeine: 'Caffeine-free: skip matcha, cocoa, hojicha, coffee, and chocolate. Use black sesame, kinako, mugicha, molasses, or cinnamon for depth.',
+    nut: 'Nut-free: swap walnut or almond for pumpkin seeds, sunflower seeds, oats, or extra sesame.',
+  };
+
+  const NAME_PREFIXES = [
+    ['Morning', 'あさの'],
+    ['Rainy Day', 'あめのひの'],
+    ['Moonlit', 'つきよの'],
+    ['Sunday', 'にちようの'],
+    ['Kissaten', 'きっさてんの'],
+    ['Garden', 'にわの'],
+    ['Late Train', 'しゅうでんまえの'],
+    ['Window Seat', 'まどべの'],
+    ['Seaside', 'うみべの'],
+  ];
+
+  const ICONS = {
+    salt: '◇', tea: '◐', jam: '●', citrus: '◌',
+    small: '•', hand: '◡', long: '━',
+    wheat: '∿', milk: '◯', egg: '◎', leaf: '⌒', moon: '◒', seed: '✶',
+    dice: '✦', bake: '→',
+  };
+
+  let typingTimer = null;
+
+  function setSpeaker(key) {
+    const speaker = SPEAKERS[key];
+    $speakerPortrait.innerHTML = speaker.svg();
+    $speakerName.innerHTML = `<span class="jp">${speaker.jp}</span>${speaker.en}`;
+    $speakerTag.textContent = speaker.tag;
+  }
+
+  function typeText(text, onDone) {
+    if (typingTimer) clearTimeout(typingTimer);
+    $dialog.textContent = '';
+    $cursor.classList.remove('visible');
+
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      $dialog.textContent = text;
+      $cursor.classList.add('visible');
+      if (onDone) onDone();
+      return;
+    }
+
+    let i = 0;
+    const tick = () => {
+      $dialog.textContent = text.slice(0, ++i);
+      if (i < text.length) {
+        typingTimer = setTimeout(tick, /[、。,.!?]/.test(text[i - 1]) ? 95 : 18);
+      } else {
+        $cursor.classList.add('visible');
+        if (onDone) onDone();
+      }
+    };
+    tick();
+  }
+
+  function setProgress(step) {
+    $progress.forEach((dot, index) => {
+      dot.classList.toggle('active', index === step);
+      dot.classList.toggle('done', index < step);
+    });
+  }
+
+  function clearChoices() {
+    $choices.innerHTML = '';
+  }
+
+  function makeChoice({ icon, label, hint, selected, onClick, full }) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `choice-btn${selected ? ' selected' : ''}${full ? ' full-row' : ''}`;
+    button.innerHTML = `
+      <span class="choice-icon">${ICONS[icon] || icon || '·'}</span>
+      <span>
+        <span class="choice-label">${label}</span>
+        ${hint ? `<span class="choice-hint">${hint}</span>` : ''}
+      </span>
+    `;
+    button.addEventListener('click', () => onClick(button));
+    return button;
+  }
+
+  function makePill(label, kind, onClick) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `pill-btn ${kind || ''}`.trim();
+    button.textContent = label;
+    button.addEventListener('click', onClick);
+    return button;
+  }
+
+  function surpriseButton(label, onClick) {
+    return makeChoice({
+      icon: 'dice',
+      label,
+      hint: 'let the bakery decide',
+      full: true,
+      onClick: () => {
+        Audio.swoosh();
+        onClick();
+      },
+    });
+  }
+
+  function stepIntro() {
+    setProgress(0);
+    setSpeaker('anpan');
+    clearChoices();
+    typeText("やあ。 Welcome to the tiny bakery.\nChoose a mood, or let me make the whole bake for you.");
+    $choices.appendChild(makeChoice({
+      icon: 'bake',
+      label: "Let's bake",
+      hint: 'answer a few warm little questions',
+      onClick: () => {
+        Audio.blip();
+        stepTexture();
+      },
+    }));
+    $choices.appendChild(surpriseButton('Surprise me with everything', () => {
+      randomizeAll();
+      stepRecipe(true);
+    }));
+  }
+
+  function stepTexture() {
+    setProgress(0);
+    setSpeaker('anpan');
+    clearChoices();
+    typeText("First, choose the crumb.\nふわふわ and cloud-soft, or deep and crusty?");
+
+    const wrap = document.createElement('div');
+    wrap.className = 'slider-wrap';
+    wrap.innerHTML = `
+      <div class="slider-labels">
+        <span>soft<span class="jp">ふわふわ</span></span>
+        <span>crusty<span class="jp">しっかり</span></span>
+      </div>
+      <input id="texture-slider" class="texture-slider" type="range" min="0" max="100" value="${state.texture}" />
+      <div class="slider-readout">
+        <span id="texture-name" class="big">${textureLabel(state.texture).name}</span>
+        <span id="texture-note">${textureLabel(state.texture).note}</span>
+      </div>
+    `;
+    $choices.appendChild(wrap);
+
+    const slider = wrap.querySelector('#texture-slider');
+    const name = wrap.querySelector('#texture-name');
+    const note = wrap.querySelector('#texture-note');
+    slider.addEventListener('input', () => {
+      state.texture = Number(slider.value);
+      const label = textureLabel(state.texture);
+      name.textContent = label.name;
+      note.textContent = label.note;
+      Audio.tick();
+    });
+
+    $choices.appendChild(surpriseButton('Surprise me with texture', () => {
+      state.texture = randomInt(0, 100);
+      stepFlavor();
+    }));
+
+    const row = utilityRow();
+    row.append(makePill('next', 'primary', () => {
+      Audio.blip();
+      stepFlavor();
+    }));
+    $choices.appendChild(row);
+  }
+
+  function stepFlavor() {
+    setProgress(1);
+    clearChoices();
+    typeText("Now the flavor.\nPick one, mix a few, or let the shelf choose.");
+
+    FLAVORS.forEach((flavor) => {
+      $choices.appendChild(makeChoice({
+        icon: flavor.icon,
+        label: flavor.label,
+        hint: flavor.hint,
+        selected: state.flavors.has(flavor.id),
+        onClick: (button) => {
+          const added = !state.flavors.has(flavor.id);
+          if (added) state.flavors.add(flavor.id);
+          else state.flavors.delete(flavor.id);
+          button.classList.toggle('selected');
+          Audio.chime(added);
+          updateFlavorNext();
+        },
+      }));
+    });
+
+    $choices.appendChild(surpriseButton('Surprise me with flavors', () => {
+      state.flavors = new Set(shuffled(FLAVORS).slice(0, randomInt(1, 3)).map((f) => f.id));
+      stepSize();
+    }));
+
+    const row = utilityRow();
+    row.append(
+      makePill('back', '', () => {
+        Audio.blip();
+        stepTexture();
+      }),
+      makePill('pick at least one', 'primary', () => {
+        if (!state.flavors.size) return;
+        Audio.blip();
+        stepSize();
+      })
+    );
+    row.lastChild.id = 'flavor-next';
+    $choices.appendChild(row);
+    updateFlavorNext();
+  }
+
+  function updateFlavorNext() {
+    const button = document.getElementById('flavor-next');
+    if (!button) return;
+    button.disabled = state.flavors.size === 0;
+    button.textContent = state.flavors.size ? `next (${state.flavors.size})` : 'pick at least one';
+  }
+
+  function stepSize() {
+    setProgress(2);
+    clearChoices();
+    typeText("How should it land in your hands?\nTiny, generous, or a long loaf for tearing.");
+
+    SIZES.forEach((size) => {
+      $choices.appendChild(makeChoice({
+        icon: size.icon,
+        label: size.label,
+        hint: size.hint,
+        selected: state.size === size.id,
+        onClick: () => {
+          state.size = size.id;
+          Audio.chime(true);
+          stepRestrictions();
+        },
+      }));
+    });
+
+    $choices.appendChild(surpriseButton('Surprise me with size', () => {
+      state.size = pick(SIZES).id;
+      stepRestrictions();
+    }));
+
+    const row = utilityRow();
+    row.append(makePill('back', '', () => {
+      Audio.blip();
+      stepFlavor();
+    }));
+    $choices.appendChild(row);
+  }
+
+  function stepRestrictions() {
+    setProgress(3);
+    clearChoices();
+    typeText("Last check: any allergies or food restrictions?\nChoose what to avoid, or bake without changes.");
+
+    RESTRICTIONS.forEach((restriction) => {
+      $choices.appendChild(makeChoice({
+        icon: restriction.icon,
+        label: restriction.label,
+        hint: restriction.hint,
+        selected: state.restrictions.has(restriction.id),
+        onClick: (button) => {
+          const added = !state.restrictions.has(restriction.id);
+          if (added) state.restrictions.add(restriction.id);
+          else state.restrictions.delete(restriction.id);
+          button.classList.toggle('selected');
+          Audio.chime(added);
+          updateRestrictionNext();
+        },
+      }));
+    });
+
+    $choices.appendChild(surpriseButton('Surprise me with restrictions', () => {
+      state.restrictions = new Set();
+      if (Math.random() > 0.58) {
+        shuffled(RESTRICTIONS).slice(0, randomInt(1, 2)).forEach((r) => state.restrictions.add(r.id));
+      }
+      stepRecipe(true);
+    }));
+
+    const row = utilityRow();
+    row.append(
+      makePill('back', '', () => {
+        Audio.blip();
+        stepSize();
+      }),
+      makePill('bake', 'primary', () => {
+        Audio.blip();
+        stepRecipe(false);
+      })
+    );
+    row.lastChild.id = 'restriction-next';
+    $choices.appendChild(row);
+    updateRestrictionNext();
+  }
+
+  function updateRestrictionNext() {
+    const button = document.getElementById('restriction-next');
+    if (!button) return;
+    button.textContent = state.restrictions.size ? `bake with care (${state.restrictions.size})` : 'bake, no restrictions';
+  }
+
+  function stepRecipe(wasSurprise) {
+    setProgress(4);
+    setSpeaker('cat');
+    clearChoices();
+    const recipe = generateRecipe();
+    typeText(wasSurprise ? "The bakery chose for you.\nHere is today's warm little answer." : "Done.\nI baked the choices into a recipe.");
+    Audio.fanfare();
+
+    const card = document.createElement('article');
+    card.className = 'recipe';
+    card.innerHTML = `
+      <div class="recipe-stamp">${wasSurprise ? 'おまかせ bake' : "today's bake"}</div>
+      <h2>${recipe.name}</h2>
+      <p class="recipe-jp">${recipe.jp}</p>
+      <p class="recipe-desc">${recipe.desc}</p>
+      <p class="recipe-note">${recipe.dough}</p>
+      <div class="recipe-grid">
+        <section>
+          <h3>ingredients</h3>
+          <ul>${recipe.ingredients.map((item) => `<li>${item}</li>`).join('')}</ul>
+        </section>
+        <section>
+          <h3>method</h3>
+          <ol>${recipe.method.map((item) => `<li>${item}</li>`).join('')}</ol>
+        </section>
+        <section>
+          <h3>egg yolk and white</h3>
+          <ul>${recipe.eggs.map((item) => `<li>${item}</li>`).join('')}</ul>
+        </section>
+        <section>
+          <h3>restriction swaps</h3>
+          <ul>${recipe.subs.map((item) => `<li>${item}</li>`).join('')}</ul>
+        </section>
+      </div>
+      <div class="recipe-meta">
+        <span class="tag">${textureLabel(state.texture).name}</span>
+        ${[...state.flavors].map((id) => `<span class="tag">${labelFrom(FLAVORS, id)}</span>`).join('')}
+        <span class="tag">${labelFrom(SIZES, state.size)}</span>
+        ${[...state.restrictions].map((id) => `<span class="tag">${labelFrom(RESTRICTIONS, id)}</span>`).join('')}
+        <span class="tag">${recipe.yield}</span>
+      </div>
+    `;
+    $choices.appendChild(card);
+
+    const row = utilityRow();
+    row.append(
+      makePill('tweak restrictions', '', () => {
+        Audio.blip();
+        stepRestrictions();
+      }),
+      makePill('surprise another bake', 'primary', () => {
+        Audio.swoosh();
+        randomizeAll();
+        stepRecipe(true);
+      }),
+      makePill('start over', '', () => {
+        Audio.blip();
+        resetState();
+        stepIntro();
+      })
+    );
+    $choices.appendChild(row);
+  }
+
+  function generateRecipe() {
+    if (!state.size) state.size = 'handful';
+    if (!state.flavors.size) state.flavors.add('sweet');
+    const bucket = bucketFor(state.texture);
+    const base = pickBase(bucket);
+    const addIns = [...state.flavors].map((flavor) => safeAddIn(flavor)).filter(Boolean);
+    const size = sizeData()[state.size];
+    const name = buildName(base, addIns);
+    const subs = buildSubs(base, addIns);
+
+    return {
+      name: name.en,
+      jp: name.jp,
+      desc: name.desc,
+      dough: base.dough,
+      ingredients: [
+        ...base.ingredients,
+        ...addIns.map((addIn) => `add-in: ${addIn.text}`),
+        `yield: ${size.yield}`,
+      ],
+      method: [
+        ...base.method,
+        addIns.length ? `Fold or fill with ${addIns.map((a) => a.text).join('; ')} after the first proof.` : 'Keep the dough plain and let the crumb be the point.',
+        `${size.shape}. ${size.bakeNote}`,
+        'Cool at least 20 minutes before tearing or filling.',
+      ],
+      eggs: eggNotes(base, addIns),
+      subs,
+      yield: size.yield,
+    };
+  }
+
+  function safeAddIn(flavor) {
+    const options = FLAVOR_ADDINS[flavor].filter((item) => !item.tags.some((tag) => state.restrictions.has(tag)));
+    return options.length ? pick(options) : null;
+  }
+
+  function pickBase(bucket) {
+    const candidates = BASES[bucket];
+    const hardRestrictions = [...state.restrictions].filter((tag) => tag !== 'gluten');
+    const safeInBucket = candidates.filter((base) => !hardRestrictions.some((tag) => base.contains.includes(tag)));
+    if (safeInBucket.length) return pick(safeInBucket);
+
+    const allBases = Object.values(BASES).flat();
+    const safeAnywhere = allBases.filter((base) => !hardRestrictions.some((tag) => base.contains.includes(tag)));
+    return pick(safeAnywhere.length ? safeAnywhere : candidates);
+  }
+
+  function buildSubs(base, addIns) {
+    const notes = [];
+    const tags = new Set([...(base.contains || []), ...addIns.flatMap((item) => item.tags)]);
+    state.restrictions.forEach((restriction) => {
+      if (SUB_NOTES[restriction] && (tags.has(restriction) || ['gluten', 'caffeine', 'meat', 'nut'].includes(restriction))) {
+        notes.push(SUB_NOTES[restriction]);
+      }
+    });
+    return notes.length ? notes : ['No active restriction swaps needed for this bake.'];
+  }
+
+  function eggNotes(base, addIns) {
+    if (state.restrictions.has('egg')) {
+      return [
+        'This recipe is marked egg-free in your restrictions: use the egg-free swaps below instead of yolk, white, whole egg, or egg wash.',
+        SUB_NOTES.egg,
+      ];
+    }
+    const text = [...base.ingredients, ...base.method, ...addIns.map((item) => item.text)].join(' ').toLowerCase();
+    const notes = [];
+    if (text.includes('whole egg')) notes.push('Whole egg means yolk and white are used together for structure, tenderness, and color.');
+    if (text.includes('egg yolk') || text.includes('yolk')) notes.push('Egg yolk is used for richness, custard body, or a deeper golden wash.');
+    if (text.includes('white')) notes.push('Egg white is either included with whole egg or reserved separately when the recipe asks for yolk only.');
+    if (!notes.length) notes.push('No egg yolk or egg white is required in the base dough.');
+    return notes;
+  }
+
+  function buildName(base, addIns) {
+    const prefix = pick(NAME_PREFIXES);
+    const accent = addIns[0] ? addIns[0].text.split(/[ ,+]/)[0].replace(/[^a-zA-Z-]/g, '') : '';
+    const en = accent ? `${prefix[0]} ${titleCase(accent)} ${base.name}` : `${prefix[0]} ${base.name}`;
+    const jp = `${prefix[1]}${base.jp}`;
+    const desc = pick([
+      'Warm, quiet, and built around one clear bakery mood.',
+      'A small counter-display bake with a soft Japanese bakery feeling.',
+      'Clean flavors, gentle sweetness, and no ingredient-list name chaos.',
+      'The kind of bread you would choose from a wooden tray near the register.',
+    ]);
+    return { en, jp, desc };
+  }
+
+  function textureLabel(value) {
+    if (value <= 15) return { name: 'cloud-soft', note: 'shokupan, choux, steam-soft crumb' };
+    if (value <= 30) return { name: 'fuwafuwa', note: 'milk bread, tangzhong, tender buns' };
+    if (value <= 45) return { name: 'pillowy', note: 'brioche, melon pan, filled buns' };
+    if (value <= 60) return { name: 'laminated', note: 'croissant layers and butter' };
+    if (value <= 72) return { name: 'tender crumb', note: 'focaccia, pan loaf, olive oil' };
+    if (value <= 85) return { name: 'rustic', note: 'country loaf and long ferment' };
+    return { name: 'crusty', note: 'baguette, lean dough, firm bite' };
+  }
+
+  function bucketFor(value) {
+    if (value <= 15) return 'cloud';
+    if (value <= 30) return 'fuwafuwa';
+    if (value <= 45) return 'pillowy';
+    if (value <= 60) return 'laminated';
+    if (value <= 72) return 'tender';
+    if (value <= 85) return 'rustic';
+    return 'stodgy';
+  }
+
+  function sizeData() {
+    return {
+      bite: { yield: '12 small pieces', shape: 'Shape as walnut-sized rounds', bakeNote: 'Bake 2 minutes shorter and watch the bottoms.' },
+      handful: { yield: '6 bakery servings', shape: 'Divide into 6 even pieces', bakeNote: 'Bake as written.' },
+      arm: { yield: '1 long loaf', shape: 'Shape as one long loaf', bakeNote: 'Add 6 to 8 minutes to the bake.' },
+    };
+  }
+
+  function randomizeAll() {
+    state.texture = randomInt(0, 100);
+    state.flavors = new Set(shuffled(FLAVORS).slice(0, randomInt(1, 3)).map((f) => f.id));
+    state.size = pick(SIZES).id;
+    state.restrictions = new Set();
+    if (Math.random() > 0.62) shuffled(RESTRICTIONS).slice(0, randomInt(1, 2)).forEach((r) => state.restrictions.add(r.id));
+  }
+
+  function resetState() {
+    state.texture = 50;
+    state.flavors = new Set();
+    state.size = null;
+    state.restrictions = new Set();
+  }
+
+  function utilityRow() {
+    const row = document.createElement('div');
+    row.className = 'utility-row';
+    return row;
+  }
+
+  function labelFrom(list, id) {
+    const item = list.find((entry) => entry.id === id);
+    return item ? item.label : id;
+  }
+
+  function pick(list) {
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  function shuffled(list) {
+    return [...list].sort(() => Math.random() - 0.5);
+  }
+
+  function randomInt(min, max) {
+    return min + Math.floor(Math.random() * (max - min + 1));
+  }
+
+  function titleCase(text) {
+    return text ? text[0].toUpperCase() + text.slice(1) : text;
+  }
+
+  function breadSvg() {
+    return `
+      <svg viewBox="0 0 120 120" role="img" aria-label="anpan baker">
+        <circle cx="60" cy="62" r="44" fill="#D8AA75"/>
+        <path d="M28 64c2-22 16-36 32-36s30 14 32 36c-8 10-20 16-32 16S36 74 28 64Z" fill="#EBC995"/>
+        <path d="M39 58c7-8 34-8 42 0" fill="none" stroke="#A86637" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="47" cy="67" r="3.5" fill="#35281F"/>
+        <circle cx="73" cy="67" r="3.5" fill="#35281F"/>
+        <path d="M53 78c4 3 10 3 14 0" fill="none" stroke="#35281F" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="60" cy="43" r="4" fill="#35281F" opacity=".24"/>
+      </svg>
+    `;
+  }
+
+  function catSvg() {
+    return `
+      <svg viewBox="0 0 120 120" role="img" aria-label="chef cat">
+        <path d="M32 52 40 30l15 14h10l15-14 8 22v21c0 19-13 31-28 31S32 92 32 73V52Z" fill="#F0D1A5"/>
+        <path d="M43 36 40 49l9-5Z" fill="#C98758"/>
+        <path d="M77 36 71 44l9 5Z" fill="#C98758"/>
+        <circle cx="48" cy="68" r="3.4" fill="#35281F"/>
+        <circle cx="72" cy="68" r="3.4" fill="#35281F"/>
+        <path d="M58 75h4l-2 3Z" fill="#A86637"/>
+        <path d="M52 84c4 3 12 3 16 0" fill="none" stroke="#35281F" stroke-width="3" stroke-linecap="round"/>
+        <path d="M38 58H20M82 58h18M38 68H22M82 68h16" stroke="#A86637" stroke-width="2.5" stroke-linecap="round" opacity=".65"/>
+        <path d="M43 34c1-10 9-17 17-17s16 7 17 17" fill="#FFFDF8"/>
+        <path d="M45 35h30" stroke="#FFFDF8" stroke-width="17" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  const Audio = (() => {
+    let ctx = null;
+    let master = null;
+    let playing = false;
+    let timer = null;
+    let lastHover = 0;
+    let lastMove = 0;
+    let step = 0;
+
+    const notes = [261.63, 329.63, 392, 523.25, 440, 392, 329.63, 293.66];
+
+    function init() {
+      if (ctx) return;
+      const Ctor = window.AudioContext || window.webkitAudioContext;
+      ctx = new Ctor();
+      master = ctx.createGain();
+      master.gain.value = 0.82;
+      master.connect(ctx.destination);
+    }
+
+    function ready() {
+      init();
+      if (ctx.state === 'suspended') ctx.resume();
+    }
+
+    function tone(freq, duration = 0.08, volume = 0.04, type = 'sine') {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(volume, now + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain).connect(master);
+      osc.start(now);
+      osc.stop(now + duration + 0.02);
+    }
+
+    function toggle() {
+      ready();
+      playing = !playing;
+      $soundBtn.classList.toggle('playing', playing);
+      $soundBtn.setAttribute('aria-pressed', String(playing));
+      if (playing) {
+        timer = setInterval(() => {
+          tone(notes[step % notes.length], 0.32, 0.025, 'triangle');
+          step += 1;
+        }, 360);
+      } else {
+        clearInterval(timer);
+      }
+    }
+
+    function blip(freq = 760) {
+      ready();
+      tone(freq, 0.07, 0.06, 'triangle');
+    }
+
+    function chime(up) {
+      ready();
+      tone(up ? 659.25 : 392, 0.11, 0.055, 'sine');
+      setTimeout(() => tone(up ? 880 : 293.66, 0.14, 0.045, 'sine'), 55);
+    }
+
+    function swoosh() {
+      ready();
+      [440, 660, 990].forEach((freq, index) => setTimeout(() => tone(freq, 0.12, 0.045, 'triangle'), index * 45));
+    }
+
+    function tick() {
+      ready();
+      tone(1400, 0.025, 0.015, 'square');
+    }
+
+    function hover() {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      if (now - lastHover < 0.09) return;
+      lastHover = now;
+      tone(1800, 0.035, 0.012, 'sine');
+    }
+
+    function move(clientX, clientY) {
+      if (!ctx) return;
+      const now = ctx.currentTime;
+      if (now - lastMove < 0.18) return;
+      lastMove = now;
+      const xRatio = Math.max(0, Math.min(1, clientX / window.innerWidth));
+      const yRatio = Math.max(0, Math.min(1, clientY / window.innerHeight));
+      tone(520 + xRatio * 360 + (1 - yRatio) * 120, 0.04, 0.008, 'sine');
+    }
+
+    function fanfare() {
+      ready();
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, index) => setTimeout(() => tone(freq, 0.22, 0.07, 'sine'), index * 80));
+    }
+
+    return { toggle, blip, chime, swoosh, tick, hover, move, fanfare };
+  })();
+
+  document.body.addEventListener('pointerover', (event) => {
+    if (event.target.closest('button, a')) Audio.hover();
+  });
+
+  document.body.addEventListener('pointermove', (event) => {
+    Audio.move(event.clientX, event.clientY);
+  });
+
+  $soundBtn.addEventListener('click', Audio.toggle);
+
+  stepIntro();
+})();
