@@ -82,8 +82,23 @@ button, input { font: inherit; }
 }
 
 .bakery-top {
-  justify-content: space-between;
+  justify-content: flex-start;
   min-height: 34px;
+}
+
+.top-left,
+.audio-toggles {
+  display: inline-flex;
+  align-items: center;
+}
+
+.top-left {
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.audio-toggles {
+  gap: 8px;
 }
 
 .home-link {
@@ -126,6 +141,12 @@ button, input { font: inherit; }
 .sound-btn.playing .sound-dot {
   background: var(--green-dark);
   box-shadow: 0 0 0 6px rgba(100, 130, 67, 0.16);
+}
+
+.sound-btn[aria-pressed="false"] {
+  color: rgba(106, 70, 48, 0.62);
+  background: rgba(255, 250, 240, 0.76);
+  box-shadow: 0 2px 0 rgba(106, 70, 48, 0.12);
 }
 
 .bakery-stage {
@@ -596,6 +617,19 @@ h1 {
 
   .brand-lockup {
     left: 2px;
+  }
+
+  .top-left {
+    gap: 10px;
+  }
+
+  .audio-toggles {
+    gap: 6px;
+  }
+
+  .sound-btn {
+    min-height: 32px;
+    padding: 0 11px;
   }
 
   h1 { font-size: 18px; }

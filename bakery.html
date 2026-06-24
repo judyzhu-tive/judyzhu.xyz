@@ -14,11 +14,19 @@
   <main class="bakery-shell">
     <section class="bakery-card" aria-labelledby="bakery-title">
       <header class="bakery-top">
-        <a class="home-link" href="./index.html">judy zhu</a>
-        <button id="sound-btn" class="sound-btn" type="button" aria-pressed="false">
-          <span class="sound-dot"></span>
-          sound
-        </button>
+        <div class="top-left">
+          <a class="home-link" href="./index.html">judy zhu</a>
+          <div class="audio-toggles" aria-label="audio controls">
+            <button id="music-btn" class="sound-btn" type="button" aria-pressed="false">
+              <span class="sound-dot"></span>
+              music
+            </button>
+            <button id="sfx-btn" class="sound-btn playing" type="button" aria-pressed="true">
+              <span class="sound-dot"></span>
+              sfx
+            </button>
+          </div>
+        </div>
       </header>
 
       <div class="bakery-stage">
@@ -57,6 +65,6 @@
     </section>
   </main>
 
-  <script src="bakery.js?v=7" defer></script>
+  <script src="bakery.js?v=8" defer></script>
 </body>
 </html>

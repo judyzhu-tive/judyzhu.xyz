@@ -7,7 +7,8 @@
   const $progress = document.querySelectorAll('.progress .dot');
   const $speakerName = document.getElementById('speaker-name');
   const $speakerTag = document.getElementById('speaker-tag');
-  const $soundBtn = document.getElementById('sound-btn');
+  const $musicBtn = document.getElementById('music-btn');
+  const $sfxBtn = document.getElementById('sfx-btn');
 
   const state = {
     texture: 50,
@@ -345,10 +346,11 @@
     return makeChoice({
       icon: 'dice',
       label,
-      hint: 'let the bakery decide',
+      hint: 'our counter pick for you',
       full: true,
       onClick: () => {
         Audio.swoosh();
+        Audio.accent('surprise');
         onClick();
       },
     });
@@ -357,12 +359,13 @@
   function stepIntro() {
     setProgress(0);
     setSpeaker('anpan');
+    Audio.setScene('intro');
     clearChoices();
-    typeText("やあ。 Welcome to the tiny bakery.\nChoose a mood, or let me make the whole bake for you.");
+    typeText("やあ。 Welcome to the tiny bakery.\nChoose your craving, and we'll turn it into a bakery-ready daily special.");
     $choices.appendChild(makeChoice({
       icon: 'bake',
-      label: "Let's bake",
-      hint: 'answer a few warm little questions',
+      label: 'Create my daily special',
+      hint: 'a few quick choices, one polished recipe',
       full: true,
       onClick: () => {
         Audio.blip();
@@ -378,6 +381,7 @@
   function stepTexture() {
     setProgress(0);
     setSpeaker('anpan');
+    Audio.setScene('texture');
     clearChoices();
     typeText("First, choose the crumb.\nふわふわ and cloud-soft, or deep and crusty?");
 
@@ -422,8 +426,9 @@
 
   function stepFlavor() {
     setProgress(1);
+    Audio.setScene('flavor');
     clearChoices();
-    typeText("Now the flavor.\nPick one, mix a few, or let the shelf choose.");
+    typeText("Now the flavor profile.\nPick one, blend a few, or take the house recommendation.");
 
     FLAVORS.forEach((flavor) => {
       $choices.appendChild(makeChoice({
@@ -473,6 +478,7 @@
 
   function stepSize() {
     setProgress(2);
+    Audio.setScene('size');
     clearChoices();
     typeText("How should it land in your hands?\nTiny, generous, or a long loaf for tearing.");
 
@@ -505,8 +511,9 @@
 
   function stepRestrictions() {
     setProgress(3);
+    Audio.setScene('restrictions');
     clearChoices();
-    typeText("Last check: any allergies or food restrictions?\nChoose what to avoid, or bake without changes.");
+    typeText("Last check: any allergies or food restrictions?\nChoose what to avoid, and we'll keep the daily special on-brief.");
 
     RESTRICTIONS.forEach((restriction) => {
       $choices.appendChild(makeChoice({
@@ -539,7 +546,7 @@
         Audio.blip();
         stepSize();
       }),
-      makePill('bake', 'primary', () => {
+      makePill('create special', 'primary', () => {
         Audio.blip();
         stepRecipe(false);
       })
@@ -552,21 +559,22 @@
   function updateRestrictionNext() {
     const button = document.getElementById('restriction-next');
     if (!button) return;
-    button.textContent = state.restrictions.size ? `bake with care (${state.restrictions.size})` : 'bake, no restrictions';
+    button.textContent = state.restrictions.size ? `create careful special (${state.restrictions.size})` : 'create daily special';
   }
 
   function stepRecipe(wasSurprise) {
     setProgress(4);
     setSpeaker('cat');
+    Audio.setScene('reveal');
     clearChoices();
     const recipe = generateRecipe();
-    typeText(wasSurprise ? "The bakery chose for you.\nHere is today's warm little answer." : "Done.\nI baked the choices into a recipe.");
+    typeText(wasSurprise ? "The bakery curated your daily special.\nFresh from the counter and ready to bake." : "Your daily special is ready.\nA bakery-counter recipe shaped around your choices.");
     Audio.fanfare();
 
     const card = document.createElement('article');
     card.className = 'recipe';
     card.innerHTML = `
-      <div class="recipe-stamp">${wasSurprise ? 'おまかせ bake' : "today's bake"}</div>
+      <div class="recipe-stamp">${wasSurprise ? 'おまかせ daily special' : 'daily special'}</div>
       <h2>${recipe.name}</h2>
       <p class="recipe-jp">${recipe.jp}</p>
       <p class="recipe-desc">${recipe.desc}</p>
@@ -605,8 +613,9 @@
         Audio.blip();
         stepRestrictions();
       }),
-      makePill('surprise another bake', 'primary', () => {
+      makePill('curate another special', 'primary', () => {
         Audio.swoosh();
+        Audio.accent('surprise');
         randomizeAll();
         stepRecipe(true);
       }),
@@ -948,13 +957,65 @@
   const Audio = (() => {
     let ctx = null;
     let master = null;
-    let playing = false;
+    let musicBus = null;
+    let sfxBus = null;
+    let musicOn = false;
+    let sfxOn = true;
     let timer = null;
     let lastHover = 0;
     let lastMove = 0;
-    let step = 0;
+    let phraseIndex = 0;
+    let musicRun = 0;
+    let scene = 'intro';
 
-    const notes = [261.63, 329.63, 392, 523.25, 440, 392, 329.63, 293.66];
+    const phrases = {
+      intro: [
+        [392, 0.18, 0.2, 'triangle', 0.018],
+        [523.25, 0.22, 0.26, 'triangle', 0.019],
+        [659.25, 0.2, 0.24, 'sine', 0.016],
+        [587.33, 0.18, 0.22, 'sine', 0.014],
+        [523.25, 0.34, 0.48, 'triangle', 0.018],
+      ],
+      texture: [
+        [329.63, 0.18, 0.2, 'triangle', 0.017],
+        [392, 0.2, 0.24, 'triangle', 0.018],
+        [493.88, 0.16, 0.2, 'sine', 0.014],
+        [392, 0.28, 0.4, 'triangle', 0.016],
+        [[261.63, 392], 0.38, 0.52, 'sine', 0.013],
+      ],
+      flavor: [
+        [440, 0.14, 0.18, 'triangle', 0.018],
+        [554.37, 0.15, 0.18, 'sine', 0.015],
+        [659.25, 0.18, 0.23, 'triangle', 0.018],
+        [739.99, 0.15, 0.2, 'sine', 0.014],
+        [659.25, 0.3, 0.48, 'triangle', 0.017],
+      ],
+      size: [
+        [293.66, 0.2, 0.24, 'triangle', 0.016],
+        [369.99, 0.2, 0.24, 'triangle', 0.016],
+        [440, 0.22, 0.28, 'sine', 0.015],
+        [[329.63, 493.88], 0.36, 0.5, 'sine', 0.012],
+      ],
+      restrictions: [
+        [349.23, 0.16, 0.22, 'sine', 0.014],
+        [392, 0.16, 0.22, 'triangle', 0.014],
+        [523.25, 0.24, 0.32, 'sine', 0.015],
+        [466.16, 0.18, 0.26, 'triangle', 0.013],
+        [[349.23, 523.25], 0.34, 0.5, 'sine', 0.012],
+      ],
+      reveal: [
+        [523.25, 0.2, 0.24, 'triangle', 0.018],
+        [659.25, 0.2, 0.24, 'triangle', 0.018],
+        [783.99, 0.24, 0.3, 'sine', 0.017],
+        [[659.25, 880], 0.42, 0.58, 'sine', 0.014],
+      ],
+    };
+
+    const accents = {
+      open: [523.25, 659.25, 783.99],
+      surprise: [659.25, 880, 1174.66, 987.77],
+      reveal: [523.25, 659.25, 783.99, 1046.5],
+    };
 
     function init() {
       if (ctx) return;
@@ -963,6 +1024,12 @@
       master = ctx.createGain();
       master.gain.value = 0.82;
       master.connect(ctx.destination);
+      musicBus = ctx.createGain();
+      musicBus.gain.value = 0;
+      musicBus.connect(master);
+      sfxBus = ctx.createGain();
+      sfxBus.gain.value = 1;
+      sfxBus.connect(master);
     }
 
     function ready() {
@@ -970,7 +1037,12 @@
       if (ctx.state === 'suspended') ctx.resume();
     }
 
-    function tone(freq, duration = 0.08, volume = 0.04, type = 'sine') {
+    function setButton(button, on) {
+      button.classList.toggle('playing', on);
+      button.setAttribute('aria-pressed', String(on));
+    }
+
+    function tone(freq, duration = 0.08, volume = 0.04, type = 'sine', bus = sfxBus) {
       if (!ctx) return;
       const now = ctx.currentTime;
       const osc = ctx.createOscillator();
@@ -980,71 +1052,142 @@
       gain.gain.setValueAtTime(0, now);
       gain.gain.linearRampToValueAtTime(volume, now + 0.01);
       gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-      osc.connect(gain).connect(master);
+      osc.connect(gain).connect(bus);
       osc.start(now);
       osc.stop(now + duration + 0.02);
     }
 
-    function toggle() {
+    function effect(freq, duration = 0.08, volume = 0.04, type = 'sine') {
+      if (!sfxOn) return;
       ready();
-      playing = !playing;
-      $soundBtn.classList.toggle('playing', playing);
-      $soundBtn.setAttribute('aria-pressed', String(playing));
-      if (playing) {
-        timer = setInterval(() => {
-          tone(notes[step % notes.length], 0.32, 0.025, 'triangle');
-          step += 1;
-        }, 360);
+      tone(freq, duration, volume, type, sfxBus);
+    }
+
+    function schedulePhrase(immediate = false) {
+      clearTimeout(timer);
+      if (!musicOn || !ctx) return;
+      const token = musicRun;
+      const phrase = phrases[scene] || phrases.intro;
+      let offset = immediate ? 0.04 : 0.18;
+
+      phrase.forEach(([freq, duration, gap, type, volume]) => {
+        const delay = offset * 1000;
+        setTimeout(() => {
+          if (!musicOn || token !== musicRun) return;
+          if (Array.isArray(freq)) {
+            freq.forEach((item, index) => tone(item, duration, volume * (index ? 0.5 : 1), type, musicBus));
+          } else {
+            tone(freq, duration, volume, type, musicBus);
+          }
+        }, delay);
+        offset += gap;
+      });
+
+      if (phraseIndex % 3 === 2) {
+        setTimeout(() => {
+          if (musicOn && token === musicRun) tone(1046.5, 0.08, 0.008, 'sine', musicBus);
+        }, Math.max(0, offset - 0.12) * 1000);
+      }
+
+      phraseIndex += 1;
+      const rest = scene === 'reveal' ? 1.15 : 0.62 + (phraseIndex % 2) * 0.24;
+      timer = setTimeout(() => schedulePhrase(false), (offset + rest) * 1000);
+    }
+
+    function toggleMusic() {
+      ready();
+      musicOn = !musicOn;
+      setButton($musicBtn, musicOn);
+      musicRun += 1;
+
+      if (musicOn) {
+        phraseIndex = 0;
+        musicBus.gain.cancelScheduledValues(ctx.currentTime);
+        musicBus.gain.setTargetAtTime(1, ctx.currentTime, 0.06);
+        schedulePhrase(true);
+        accent('open');
       } else {
-        clearInterval(timer);
+        clearTimeout(timer);
+        musicBus.gain.cancelScheduledValues(ctx.currentTime);
+        musicBus.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
       }
     }
 
+    function toggleSfx() {
+      sfxOn = !sfxOn;
+      setButton($sfxBtn, sfxOn);
+      if (sfxOn) effect(880, 0.08, 0.045, 'triangle');
+    }
+
     function blip(freq = 760) {
-      ready();
-      tone(freq, 0.07, 0.06, 'triangle');
+      effect(freq, 0.07, 0.06, 'triangle');
     }
 
     function chime(up) {
-      ready();
-      tone(up ? 659.25 : 392, 0.11, 0.055, 'sine');
-      setTimeout(() => tone(up ? 880 : 293.66, 0.14, 0.045, 'sine'), 55);
+      effect(up ? 659.25 : 392, 0.11, 0.055, 'sine');
+      setTimeout(() => effect(up ? 880 : 293.66, 0.14, 0.045, 'sine'), 55);
     }
 
     function swoosh() {
-      ready();
-      [440, 660, 990].forEach((freq, index) => setTimeout(() => tone(freq, 0.12, 0.045, 'triangle'), index * 45));
+      [440, 660, 990].forEach((freq, index) => setTimeout(() => effect(freq, 0.12, 0.045, 'triangle'), index * 45));
     }
 
     function tick() {
-      ready();
-      tone(1400, 0.025, 0.015, 'square');
+      effect(1400, 0.025, 0.015, 'square');
     }
 
     function hover() {
-      if (!ctx) return;
+      if (!ctx || !sfxOn) return;
       const now = ctx.currentTime;
       if (now - lastHover < 0.09) return;
       lastHover = now;
-      tone(1800, 0.035, 0.012, 'sine');
+      tone(1800, 0.035, 0.012, 'sine', sfxBus);
     }
 
     function move(clientX, clientY) {
-      if (!ctx) return;
+      if (!ctx || !sfxOn) return;
       const now = ctx.currentTime;
       if (now - lastMove < 0.18) return;
       lastMove = now;
       const xRatio = Math.max(0, Math.min(1, clientX / window.innerWidth));
       const yRatio = Math.max(0, Math.min(1, clientY / window.innerHeight));
-      tone(520 + xRatio * 360 + (1 - yRatio) * 120, 0.04, 0.008, 'sine');
+      tone(520 + xRatio * 360 + (1 - yRatio) * 120, 0.04, 0.008, 'sine', sfxBus);
     }
 
     function fanfare() {
-      ready();
-      [523.25, 659.25, 783.99, 1046.5].forEach((freq, index) => setTimeout(() => tone(freq, 0.22, 0.07, 'sine'), index * 80));
+      accent('reveal');
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq, index) => {
+        setTimeout(() => effect(freq, 0.22, 0.07, 'sine'), index * 80);
+      });
     }
 
-    return { toggle, blip, chime, swoosh, tick, hover, move, fanfare };
+    function accent(kind) {
+      if (!musicOn) return;
+      ready();
+      const token = musicRun;
+      const notes = accents[kind] || accents.open;
+      notes.forEach((freq, index) => {
+        setTimeout(() => {
+          if (musicOn && token === musicRun) tone(freq, 0.16, 0.015, 'triangle', musicBus);
+        }, index * 52);
+      });
+    }
+
+    function setScene(nextScene) {
+      scene = nextScene;
+      if (!musicOn || !ctx) return;
+      musicRun += 1;
+      schedulePhrase(true);
+    }
+
+    function sync() {
+      setButton($musicBtn, musicOn);
+      setButton($sfxBtn, sfxOn);
+    }
+
+    sync();
+
+    return { toggleMusic, toggleSfx, setScene, accent, blip, chime, swoosh, tick, hover, move, fanfare };
   })();
 
   document.body.addEventListener('pointerover', (event) => {
@@ -1055,7 +1198,8 @@
     Audio.move(event.clientX, event.clientY);
   });
 
-  $soundBtn.addEventListener('click', Audio.toggle);
+  $musicBtn.addEventListener('click', Audio.toggleMusic);
+  $sfxBtn.addEventListener('click', Audio.toggleSfx);
 
   stepIntro();
 })();
