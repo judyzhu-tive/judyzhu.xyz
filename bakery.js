@@ -275,9 +275,9 @@
   };
 
   const ICONS = {
-    salt: '◇', tea: '◐', jam: '●', citrus: '◌',
-    small: '•', hand: '◡', long: '━',
-    wheat: '∿', milk: '◯', egg: '◎', leaf: '⌒', moon: '◒', seed: '✶',
+    salt: '🧂', tea: '🍵', jam: '🍯', citrus: '🍋',
+    small: '🍙', hand: '🥐', long: '🥖',
+    wheat: '🌾', milk: '🥛', egg: '🥚', leaf: '🌿', moon: '🌙', seed: '🥜',
     dice: '✦', bake: '→',
   };
 
@@ -1019,51 +1019,59 @@
     let sfxOn = true;
     let timer = null;
     let lastHover = 0;
-    let lastMove = 0;
     let phraseIndex = 0;
     let musicRun = 0;
     let scene = 'intro';
 
+    // Motifs are warm and pentatonic-ish; each scene gets a small recognizable
+    // shape so the loop reads like a tune, not a random walk. Format per note:
+    // [freq, duration, gap-to-next, type-hint, volume]. Array freq = small chord.
     const phrases = {
       intro: [
-        [392, 0.18, 0.2, 'triangle', 0.018],
-        [523.25, 0.22, 0.26, 'triangle', 0.019],
-        [659.25, 0.2, 0.24, 'sine', 0.016],
-        [587.33, 0.18, 0.22, 'sine', 0.014],
-        [523.25, 0.34, 0.48, 'triangle', 0.018],
+        [523.25, 0.32, 0.36, 'triangle', 0.016],
+        [659.25, 0.24, 0.28, 'triangle', 0.015],
+        [783.99, 0.22, 0.26, 'sine', 0.014],
+        [659.25, 0.22, 0.26, 'sine', 0.013],
+        [587.33, 0.28, 0.34, 'triangle', 0.014],
+        [523.25, 0.48, 0.7, 'triangle', 0.015],
       ],
       texture: [
-        [329.63, 0.18, 0.2, 'triangle', 0.017],
-        [392, 0.2, 0.24, 'triangle', 0.018],
-        [493.88, 0.16, 0.2, 'sine', 0.014],
-        [392, 0.28, 0.4, 'triangle', 0.016],
-        [[261.63, 392], 0.38, 0.52, 'sine', 0.013],
+        [349.23, 0.26, 0.3, 'triangle', 0.015],
+        [523.25, 0.24, 0.28, 'sine', 0.014],
+        [466.16, 0.22, 0.26, 'triangle', 0.014],
+        [392, 0.26, 0.3, 'sine', 0.013],
+        [349.23, 0.4, 0.58, 'triangle', 0.015],
+        [[261.63, 523.25], 0.5, 0.78, 'sine', 0.012],
       ],
       flavor: [
-        [440, 0.14, 0.18, 'triangle', 0.018],
-        [554.37, 0.15, 0.18, 'sine', 0.015],
-        [659.25, 0.18, 0.23, 'triangle', 0.018],
-        [739.99, 0.15, 0.2, 'sine', 0.014],
-        [659.25, 0.3, 0.48, 'triangle', 0.017],
+        [587.33, 0.18, 0.22, 'triangle', 0.015],
+        [659.25, 0.18, 0.22, 'sine', 0.014],
+        [783.99, 0.22, 0.26, 'triangle', 0.015],
+        [659.25, 0.2, 0.24, 'sine', 0.013],
+        [523.25, 0.22, 0.26, 'triangle', 0.014],
+        [587.33, 0.4, 0.6, 'sine', 0.014],
       ],
       size: [
-        [293.66, 0.2, 0.24, 'triangle', 0.016],
-        [369.99, 0.2, 0.24, 'triangle', 0.016],
-        [440, 0.22, 0.28, 'sine', 0.015],
-        [[329.63, 493.88], 0.36, 0.5, 'sine', 0.012],
+        [392, 0.24, 0.28, 'triangle', 0.014],
+        [493.88, 0.24, 0.28, 'sine', 0.014],
+        [587.33, 0.26, 0.3, 'triangle', 0.015],
+        [493.88, 0.24, 0.28, 'sine', 0.013],
+        [[329.63, 659.25], 0.46, 0.7, 'sine', 0.012],
       ],
       restrictions: [
-        [349.23, 0.16, 0.22, 'sine', 0.014],
-        [392, 0.16, 0.22, 'triangle', 0.014],
-        [523.25, 0.24, 0.32, 'sine', 0.015],
-        [466.16, 0.18, 0.26, 'triangle', 0.013],
-        [[349.23, 523.25], 0.34, 0.5, 'sine', 0.012],
+        [349.23, 0.22, 0.26, 'sine', 0.013],
+        [440, 0.22, 0.26, 'triangle', 0.013],
+        [523.25, 0.28, 0.34, 'sine', 0.014],
+        [466.16, 0.24, 0.28, 'triangle', 0.012],
+        [[349.23, 523.25], 0.46, 0.68, 'sine', 0.012],
       ],
       reveal: [
-        [523.25, 0.2, 0.24, 'triangle', 0.018],
-        [659.25, 0.2, 0.24, 'triangle', 0.018],
-        [783.99, 0.24, 0.3, 'sine', 0.017],
-        [[659.25, 880], 0.42, 0.58, 'sine', 0.014],
+        [523.25, 0.22, 0.26, 'triangle', 0.016],
+        [659.25, 0.22, 0.26, 'triangle', 0.016],
+        [783.99, 0.24, 0.28, 'sine', 0.015],
+        [1046.5, 0.3, 0.36, 'triangle', 0.015],
+        [783.99, 0.28, 0.34, 'sine', 0.014],
+        [[523.25, 1046.5], 0.5, 0.78, 'sine', 0.013],
       ],
     };
 
@@ -1106,18 +1114,27 @@
       ],
     };
 
+    let melodyBus = null;
+
     function init() {
       if (ctx) return;
       const Ctor = window.AudioContext || window.webkitAudioContext;
       ctx = new Ctor();
       master = ctx.createGain();
-      master.gain.value = 0.82;
+      master.gain.value = 0.78;
       master.connect(ctx.destination);
       musicBus = ctx.createGain();
       musicBus.gain.value = 0;
       musicBus.connect(master);
+      // Melody runs through a soft low-pass so the triangle/sine layers feel
+      // closer to a music box than to a raw oscillator.
+      melodyBus = ctx.createBiquadFilter();
+      melodyBus.type = 'lowpass';
+      melodyBus.frequency.value = 2200;
+      melodyBus.Q.value = 0.6;
+      melodyBus.connect(musicBus);
       stringBus = ctx.createGain();
-      stringBus.gain.value = 0.62;
+      stringBus.gain.value = 0.5;
       stringBus.connect(musicBus);
       sfxBus = ctx.createGain();
       sfxBus.gain.value = 1;
@@ -1147,6 +1164,38 @@
       osc.connect(gain).connect(bus);
       osc.start(now);
       osc.stop(now + duration + 0.02);
+    }
+
+    // Melody note — warm bell/music-box flavor. Layers a triangle body with a
+    // quieter sine "shine" an octave up; both run through the lowpass on
+    // melodyBus. Slightly slower attack + longer tail than tone() so the loop
+    // doesn't feel pecky.
+    function melodyNote(freq, duration = 0.3, volume = 0.014) {
+      if (!ctx || !melodyBus) return;
+      const now = ctx.currentTime;
+      const release = Math.max(duration, 0.32);
+
+      const body = ctx.createOscillator();
+      const bodyGain = ctx.createGain();
+      body.type = 'triangle';
+      body.frequency.value = freq;
+      bodyGain.gain.setValueAtTime(0, now);
+      bodyGain.gain.linearRampToValueAtTime(volume, now + 0.02);
+      bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + release);
+      body.connect(bodyGain).connect(melodyBus);
+      body.start(now);
+      body.stop(now + release + 0.05);
+
+      const shine = ctx.createOscillator();
+      const shineGain = ctx.createGain();
+      shine.type = 'sine';
+      shine.frequency.value = freq * 2;
+      shineGain.gain.setValueAtTime(0, now);
+      shineGain.gain.linearRampToValueAtTime(volume * 0.32, now + 0.015);
+      shineGain.gain.exponentialRampToValueAtTime(0.0001, now + release * 0.72);
+      shine.connect(shineGain).connect(melodyBus);
+      shine.start(now);
+      shine.stop(now + release + 0.05);
     }
 
     function stringPad(notes, duration = 1.6, volume = 0.008) {
@@ -1215,23 +1264,23 @@
         setTimeout(() => {
           if (!musicOn || token !== musicRun) return;
           if (Array.isArray(freq)) {
-            freq.forEach((item, index) => tone(item, duration, volume * (index ? 0.5 : 1), type, musicBus));
+            freq.forEach((item, index) => melodyNote(item, duration, volume * (index ? 0.6 : 1)));
           } else {
-            tone(freq, duration, volume, type, musicBus);
+            melodyNote(freq, duration, volume);
           }
         }, delay);
-        if (phraseIndex % 2 === 0 && !Array.isArray(freq) && gap > 0.22) {
+        if (phraseIndex % 2 === 0 && !Array.isArray(freq) && gap > 0.28) {
           setTimeout(() => {
-            if (musicOn && token === musicRun) stringPluck(freq * 2, 0.006);
-          }, (offset + gap * 0.48) * 1000);
+            if (musicOn && token === musicRun) stringPluck(freq * 2, 0.005);
+          }, (offset + gap * 0.5) * 1000);
         }
         offset += gap;
       });
 
       if (phraseIndex % 3 === 2) {
         setTimeout(() => {
-          if (musicOn && token === musicRun) tone(1046.5, 0.08, 0.008, 'sine', musicBus);
-        }, Math.max(0, offset - 0.12) * 1000);
+          if (musicOn && token === musicRun) melodyNote(1046.5, 0.22, 0.008);
+        }, Math.max(0, offset - 0.14) * 1000);
       }
 
       phraseIndex += 1;
@@ -1284,19 +1333,9 @@
     function hover() {
       if (!ctx || !sfxOn) return;
       const now = ctx.currentTime;
-      if (now - lastHover < 0.09) return;
+      if (now - lastHover < 0.12) return;
       lastHover = now;
-      tone(1800, 0.035, 0.012, 'sine', sfxBus);
-    }
-
-    function move(clientX, clientY) {
-      if (!ctx || !sfxOn) return;
-      const now = ctx.currentTime;
-      if (now - lastMove < 0.18) return;
-      lastMove = now;
-      const xRatio = Math.max(0, Math.min(1, clientX / window.innerWidth));
-      const yRatio = Math.max(0, Math.min(1, clientY / window.innerHeight));
-      tone(520 + xRatio * 360 + (1 - yRatio) * 120, 0.04, 0.008, 'sine', sfxBus);
+      tone(1050, 0.05, 0.007, 'sine', sfxBus);
     }
 
     function fanfare() {
@@ -1313,8 +1352,8 @@
       const notes = accents[kind] || accents.open;
       notes.forEach((freq, index) => {
         setTimeout(() => {
-          if (musicOn && token === musicRun) tone(freq, 0.16, 0.015, 'triangle', musicBus);
-        }, index * 52);
+          if (musicOn && token === musicRun) melodyNote(freq, 0.24, 0.013);
+        }, index * 56);
       });
     }
 
@@ -1332,15 +1371,11 @@
 
     sync();
 
-    return { toggleMusic, toggleSfx, setScene, accent, blip, chime, swoosh, tick, hover, move, fanfare };
+    return { toggleMusic, toggleSfx, setScene, accent, blip, chime, swoosh, tick, hover, fanfare };
   })();
 
   document.body.addEventListener('pointerover', (event) => {
     if (event.target.closest('button, a')) Audio.hover();
-  });
-
-  document.body.addEventListener('pointermove', (event) => {
-    Audio.move(event.clientX, event.clientY);
   });
 
   $musicBtn.addEventListener('click', Audio.toggleMusic);
