@@ -147,6 +147,15 @@ function Contact() {
               thank you for your patience.
             </p>
           </div>
+
+          <a href="./bakery.html" className="contact-surprise">
+            <span className="contact-surprise-mark">✦</span>
+            <span>
+              <span className="contact-surprise-k">surprise</span>
+              <span className="contact-surprise-v">visit the tiny bakery</span>
+            </span>
+            <span className="arr">↗</span>
+          </a>
         </div>
       </div>
     </section>

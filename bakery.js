@@ -7,7 +7,6 @@
   const $progress = document.querySelectorAll('.progress .dot');
   const $speakerName = document.getElementById('speaker-name');
   const $speakerTag = document.getElementById('speaker-tag');
-  const $speakerPortrait = document.getElementById('speaker-portrait');
   const $soundBtn = document.getElementById('sound-btn');
 
   const state = {
@@ -19,16 +18,14 @@
 
   const SPEAKERS = {
     anpan: {
-      jp: 'あんパン',
-      en: 'anpan baker',
-      tag: 'soft bread guide',
-      svg: breadSvg,
+      jp: 'ミルクパン',
+      en: 'milk bread',
+      tag: 'bakery mascot',
     },
     cat: {
-      jp: 'ねこシェフ',
-      en: 'chef cat',
-      tag: 'recipe finisher',
-      svg: catSvg,
+      jp: 'こねこシェフ',
+      en: 'kitten chefs',
+      tag: 'recipe ready',
     },
   };
 
@@ -57,8 +54,8 @@
   const BASES = {
     cloud: [
       {
-        name: 'Hokkaido Cloud Toast',
-        jp: 'ほっかいどうくもパン',
+        name: 'Hokkaido Milk Bread',
+        jp: 'ほっかいどうミルクパン',
         contains: ['gluten', 'dairy'],
         dough: 'Yudane shokupan: flour scalded with boiling water, rested, then folded into a milk dough for a paper-tearing crumb.',
         ingredients: [
@@ -91,8 +88,8 @@
     ],
     fuwafuwa: [
       {
-        name: 'Milk Pillow Buns',
-        jp: 'ミルクまくらパン',
+        name: 'Toasted Milk Buns',
+        jp: 'トーストミルクパン',
         contains: ['gluten', 'dairy'],
         dough: 'Tangzhong milk bread: a small cooked flour paste keeps the crumb soft for days.',
         ingredients: [
@@ -109,8 +106,8 @@
     ],
     pillowy: [
       {
-        name: 'Butter Moon Brioche',
-        jp: 'つきのブリオッシュ',
+        name: 'Brioche',
+        jp: 'ブリオッシュ',
         contains: ['gluten', 'dairy', 'egg'],
         dough: 'Enriched brioche: slow cold proof, butter worked in late for a plush crumb.',
         ingredients: [
@@ -144,8 +141,8 @@
     ],
     laminated: [
       {
-        name: 'Amber Croissant',
-        jp: 'こはくクロワッサン',
+        name: 'Croissant',
+        jp: 'クロワッサン',
         contains: ['gluten', 'dairy', 'egg'],
         dough: 'Classic lamination: detrempe wrapped around a butter block and folded into fine layers.',
         ingredients: [
@@ -160,7 +157,7 @@
         ],
       },
       {
-        name: 'Butter-Layer Tartine',
+        name: 'Butter Tartine',
         jp: 'バターのパイタルティーヌ',
         contains: ['gluten', 'dairy'],
         dough: 'Puff pastry-style layers: lean dough folded around butter, crisp and clean without egg in the dough.',
@@ -196,8 +193,8 @@
     ],
     rustic: [
       {
-        name: 'Garden Campagne',
-        jp: 'にわのカンパーニュ',
+        name: 'Campagne',
+        jp: 'カンパーニュ',
         contains: ['gluten'],
         dough: 'Country loaf: long ferment, deep crust, gentle acidity.',
         ingredients: [
@@ -213,8 +210,8 @@
     ],
     stodgy: [
       {
-        name: 'Long Table Baguette',
-        jp: 'ながいバゲット',
+        name: 'Baguette',
+        jp: 'バゲット',
         contains: ['gluten'],
         dough: 'Lean baguette: flour, water, salt, yeast, and time.',
         ingredients: [
@@ -254,7 +251,7 @@
     sour: [
       { text: 'yuzu marmalade 30g', tags: [] },
       { text: 'lemon zest and sugar', tags: [] },
-      { text: 'raspberry 50g', tags: [] },
+      { text: 'raspberry 50g + lychee jam 30g + rose water 1/2 tsp', tags: [] },
       { text: 'umeboshi paste 1 tsp and shiso', tags: [] },
     ],
   };
@@ -268,18 +265,6 @@
     nut: 'Nut-free: swap walnut or almond for pumpkin seeds, sunflower seeds, oats, or extra sesame.',
   };
 
-  const NAME_PREFIXES = [
-    ['Morning', 'あさの'],
-    ['Rainy Day', 'あめのひの'],
-    ['Moonlit', 'つきよの'],
-    ['Sunday', 'にちようの'],
-    ['Kissaten', 'きっさてんの'],
-    ['Garden', 'にわの'],
-    ['Late Train', 'しゅうでんまえの'],
-    ['Window Seat', 'まどべの'],
-    ['Seaside', 'うみべの'],
-  ];
-
   const ICONS = {
     salt: '◇', tea: '◐', jam: '●', citrus: '◌',
     small: '•', hand: '◡', long: '━',
@@ -291,7 +276,6 @@
 
   function setSpeaker(key) {
     const speaker = SPEAKERS[key];
-    $speakerPortrait.innerHTML = speaker.svg();
     $speakerName.innerHTML = `<span class="jp">${speaker.jp}</span>${speaker.en}`;
     $speakerTag.textContent = speaker.tag;
   }
@@ -336,6 +320,7 @@
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `choice-btn${selected ? ' selected' : ''}${full ? ' full-row' : ''}`;
+    if (icon) button.dataset.icon = icon;
     button.innerHTML = `
       <span class="choice-icon">${ICONS[icon] || icon || '·'}</span>
       <span>
@@ -378,6 +363,7 @@
       icon: 'bake',
       label: "Let's bake",
       hint: 'answer a few warm little questions',
+      full: true,
       onClick: () => {
         Audio.blip();
         stepTexture();
@@ -638,7 +624,7 @@
     if (!state.flavors.size) state.flavors.add('sweet');
     const bucket = bucketFor(state.texture);
     const base = pickBase(bucket);
-    const addIns = [...state.flavors].map((flavor) => safeAddIn(flavor)).filter(Boolean);
+    const addIns = [...state.flavors].map((flavor) => safeAddIn(flavor, state.restrictions, base)).filter(Boolean);
     const size = sizeData()[state.size];
     const name = buildName(base, addIns);
     const subs = buildSubs(base, addIns);
@@ -665,8 +651,23 @@
     };
   }
 
-  function safeAddIn(flavor) {
-    const options = FLAVOR_ADDINS[flavor].filter((item) => !item.tags.some((tag) => state.restrictions.has(tag)));
+  function safeAddIn(flavor, restrictions = state.restrictions, base = null) {
+    let options = FLAVOR_ADDINS[flavor].filter((item) => !item.tags.some((tag) => restrictions.has(tag)));
+    const leanBases = ['Olive Oil Focaccia', 'Campagne', 'Baguette'];
+    const baseName = base && base.name;
+
+    if (leanBases.includes(baseName)) {
+      if (flavor === 'sweet') {
+        options = options.filter((item) => /fig|apple/.test(item.text));
+      }
+      if (flavor === 'sour') {
+        options = options.filter((item) => !/raspberry|lychee|rose/.test(item.text));
+      }
+      if (flavor === 'bitter') {
+        options = options.filter((item) => !/matcha|cocoa|chocolate|hojicha|espresso/.test(item.text));
+      }
+    }
+
     return options.length ? pick(options) : null;
   }
 
@@ -709,17 +710,169 @@
   }
 
   function buildName(base, addIns) {
-    const prefix = pick(NAME_PREFIXES);
-    const accent = addIns[0] ? addIns[0].text.split(/[ ,+]/)[0].replace(/[^a-zA-Z-]/g, '') : '';
-    const en = accent ? `${prefix[0]} ${titleCase(accent)} ${base.name}` : `${prefix[0]} ${base.name}`;
-    const jp = `${prefix[1]}${base.jp}`;
-    const desc = pick([
-      'Warm, quiet, and built around one clear bakery mood.',
-      'A small counter-display bake with a soft Japanese bakery feeling.',
-      'Clean flavors, gentle sweetness, and no ingredient-list name chaos.',
-      'The kind of bread you would choose from a wooden tray near the register.',
-    ]);
+    const addInText = addIns.map((item) => item.text).join(' ').toLowerCase();
+    const baseName = base.name;
+    const baseJp = base.jp;
+
+    const options = [
+      {
+        test: () => addInText.includes('raspberry') && (addInText.includes('lychee') || addInText.includes('rose')),
+        en: `Ispahan ${shortBaseName(baseName)}`,
+        jp: `イスパハン${baseJp}`,
+        desc: `Ispahan means the rose-lychee-raspberry trio in patisserie shorthand; this keeps that floral fruit note inside a soft bakery shape.`,
+      },
+      {
+        test: () => addInText.includes('kinako'),
+        en: `Kinako ${shortBaseName(baseName)}`,
+        jp: `きなこ${baseJp}`,
+        desc: `Kinako is roasted soybean flour, nutty and golden; it gives this bake a quiet toasted sweetness.`,
+      },
+      {
+        test: () => addInText.includes('yuzu'),
+        en: `Yuzu ${shortBaseName(baseName)}`,
+        jp: `ゆず${baseJp}`,
+        desc: `Yuzu is a Japanese citrus with floral lemon-mandarin brightness; here it lifts the butter and crumb without shouting.`,
+      },
+      {
+        test: () => addInText.includes('anko'),
+        en: `Anko ${shortBaseName(baseName)}`,
+        jp: `あんこ${baseJp}`,
+        desc: `Anko is sweet red bean paste; it brings a gentle, old-school Japanese bakery sweetness.`,
+      },
+      {
+        test: () => addInText.includes('miso'),
+        en: `Miso Butter ${shortBaseName(baseName)}`,
+        jp: `みそバター${baseJp}`,
+        desc: `Miso is fermented soybean paste, savory and deep; with butter it turns the bake warm, rounded, and quietly addictive.`,
+      },
+      {
+        test: () => addInText.includes('matcha'),
+        en: `Matcha ${shortBaseName(baseName)}`,
+        jp: `まっちゃ${baseJp}`,
+        desc: `Matcha is finely milled green tea; its bitterness makes the sweetness feel more deliberate.`,
+      },
+      {
+        test: () => addInText.includes('umeboshi'),
+        en: `Ume Shiso ${shortBaseName(baseName)}`,
+        jp: `うめしそ${baseJp}`,
+        desc: `Ume is salted Japanese plum and shiso is a bright herb; together they make a sharp, aromatic finish.`,
+      },
+      {
+        test: () => addInText.includes('black sesame'),
+        en: `Black Sesame ${shortBaseName(baseName)}`,
+        jp: `くろごま${baseJp}`,
+        desc: `Black sesame gives a dark, roasted nuttiness; the flavor feels simple at first, then keeps opening.`,
+      },
+      {
+        test: () => addInText.includes('custard'),
+        en: `Custard ${shortBaseName(baseName)}`,
+        jp: `カスタード${baseJp}`,
+        desc: `A bakery classic: soft dough, vanilla custard, and just enough richness to feel finished.`,
+      },
+      {
+        test: () => addInText.includes('banana'),
+        en: `Caramel Banana ${shortBaseName(baseName)}`,
+        jp: `バナナキャラメル${baseJp}`,
+        desc: `Banana and brown sugar give it a gentle caramel note, sweet but still bakery-counter simple.`,
+      },
+      {
+        test: () => addInText.includes('apple'),
+        en: `Apple Butter ${shortBaseName(baseName)}`,
+        jp: `りんごバター${baseJp}`,
+        desc: `Apple and butter make this feel familiar, but the dough keeps it polished rather than rustic.`,
+      },
+      {
+        test: () => addInText.includes('blueberries'),
+        en: `Blueberry Honey ${shortBaseName(baseName)}`,
+        jp: `ブルーベリーハニー${baseJp}`,
+        desc: `Blueberry and honey keep the sweetness clean, more morning bakery than dessert.`,
+      },
+      {
+        test: () => addInText.includes('kabocha'),
+        en: `Kabocha Cream ${shortBaseName(baseName)}`,
+        jp: `かぼちゃクリーム${baseJp}`,
+        desc: `Kabocha is Japanese pumpkin; it makes the filling mellow, earthy, and naturally sweet.`,
+      },
+      {
+        test: () => addInText.includes('fig'),
+        en: `Fig Sea Salt ${shortBaseName(baseName)}`,
+        jp: `いちじくソルト${baseJp}`,
+        desc: `Fig and sea salt make the bake feel quietly grown-up, sweet with a clean finish.`,
+      },
+      {
+        test: () => addInText.includes('caramelized onion'),
+        en: `Onion Butter ${shortBaseName(baseName)}`,
+        jp: `オニオンバター${baseJp}`,
+        desc: `Slow onion sweetness folds into the bake like a savory jam.`,
+      },
+      {
+        test: () => addInText.includes('mushroom'),
+        en: `Mushroom Duxelles ${shortBaseName(baseName)}`,
+        jp: `マッシュルーム${baseJp}`,
+        desc: `Duxelles means finely cooked mushrooms; here it gives the bread a deep savory center.`,
+      },
+      {
+        test: () => addInText.includes('ham') || addInText.includes('gouda'),
+        en: `Ham Gouda ${shortBaseName(baseName)}`,
+        jp: `ハムゴーダ${baseJp}`,
+        desc: `Ham and gouda keep it direct, salty, and easy to imagine warm from the tray.`,
+      },
+      {
+        test: () => addInText.includes('sun-dried tomato'),
+        en: `Tomato Olive ${shortBaseName(baseName)}`,
+        jp: `トマトオリーブ${baseJp}`,
+        desc: `Tomato and olive oil give it a small aperitivo feeling, salty and warm around the edges.`,
+      },
+      {
+        test: () => addInText.includes('lemon'),
+        en: `Lemon Sugar ${shortBaseName(baseName)}`,
+        jp: `レモンシュガー${baseJp}`,
+        desc: `Lemon sugar keeps the flavor bright and polished without turning the name into a sentence.`,
+      },
+      {
+        test: () => addInText.includes('walnut'),
+        en: `Walnut Maple ${shortBaseName(baseName)}`,
+        jp: `くるみメープル${baseJp}`,
+        desc: `Walnut and maple make the flavor warm, toasty, and quietly luxurious.`,
+      },
+      {
+        test: () => addInText.includes('cocoa') || addInText.includes('chocolate'),
+        en: `Cacao ${shortBaseName(baseName)}`,
+        jp: `カカオ${baseJp}`,
+        desc: `Cacao keeps the chocolate note darker and more grown-up than sweet.`,
+      },
+    ];
+
+    const selected = options.find((option) => option.test());
+    if (selected) return { en: selected.en, jp: selected.jp, desc: selected.desc };
+
+    const fallbackDesc = {
+      'Hokkaido Milk Bread': 'A clean milk bread name with enough softness implied, no extra poetry required.',
+      'Vanilla Choux Puffs': 'Classic choux with a vanilla finish, simple enough to trust and pretty enough to serve.',
+      'Toasted Milk Buns': 'Soft milk buns with a toasted edge, the kind of name that belongs on a bakery tag.',
+      'Brioche': 'Butter-rich and restrained, with the flavor doing more work than the title.',
+      'Kissaten Melon Pan': 'Kissaten means old-style Japanese cafe; this is a cafe-counter melon pan with a tender cookie cap.',
+      'Croissant': 'A clean laminated pastry title: crisp layers, butter, and no unnecessary mood words.',
+      'Butter Tartine': 'A crisp butter-layer base that leaves room for the topping to speak.',
+      'Olive Oil Focaccia': 'Olive oil, salt, and a soft open crumb keep this direct and desirable.',
+      'Campagne': 'Campagne means country bread in French; this is the kind of loaf that wants a good knife and quiet butter.',
+      'Baguette': 'A familiar name with a clear promise: thin crust, open crumb, and a firm bite.',
+    };
+    const en = baseName;
+    const jp = baseJp;
+    const desc = fallbackDesc[baseName] || 'A clean bakery-counter name with just enough room for imagination.';
     return { en, jp, desc };
+  }
+
+  function shortBaseName(name) {
+    const names = {
+      'Hokkaido Milk Bread': 'Milk Bread',
+      'Vanilla Choux Puffs': 'Choux',
+      'Toasted Milk Buns': 'Milk Buns',
+      'Kissaten Melon Pan': 'Melon Pan',
+      'Olive Oil Focaccia': 'Focaccia',
+    };
+    return names[name] || name;
   }
 
   function textureLabel(value) {
@@ -790,37 +943,6 @@
 
   function titleCase(text) {
     return text ? text[0].toUpperCase() + text.slice(1) : text;
-  }
-
-  function breadSvg() {
-    return `
-      <svg viewBox="0 0 120 120" role="img" aria-label="anpan baker">
-        <circle cx="60" cy="62" r="44" fill="#D8AA75"/>
-        <path d="M28 64c2-22 16-36 32-36s30 14 32 36c-8 10-20 16-32 16S36 74 28 64Z" fill="#EBC995"/>
-        <path d="M39 58c7-8 34-8 42 0" fill="none" stroke="#A86637" stroke-width="4" stroke-linecap="round"/>
-        <circle cx="47" cy="67" r="3.5" fill="#35281F"/>
-        <circle cx="73" cy="67" r="3.5" fill="#35281F"/>
-        <path d="M53 78c4 3 10 3 14 0" fill="none" stroke="#35281F" stroke-width="3" stroke-linecap="round"/>
-        <circle cx="60" cy="43" r="4" fill="#35281F" opacity=".24"/>
-      </svg>
-    `;
-  }
-
-  function catSvg() {
-    return `
-      <svg viewBox="0 0 120 120" role="img" aria-label="chef cat">
-        <path d="M32 52 40 30l15 14h10l15-14 8 22v21c0 19-13 31-28 31S32 92 32 73V52Z" fill="#F0D1A5"/>
-        <path d="M43 36 40 49l9-5Z" fill="#C98758"/>
-        <path d="M77 36 71 44l9 5Z" fill="#C98758"/>
-        <circle cx="48" cy="68" r="3.4" fill="#35281F"/>
-        <circle cx="72" cy="68" r="3.4" fill="#35281F"/>
-        <path d="M58 75h4l-2 3Z" fill="#A86637"/>
-        <path d="M52 84c4 3 12 3 16 0" fill="none" stroke="#35281F" stroke-width="3" stroke-linecap="round"/>
-        <path d="M38 58H20M82 58h18M38 68H22M82 68h16" stroke="#A86637" stroke-width="2.5" stroke-linecap="round" opacity=".65"/>
-        <path d="M43 34c1-10 9-17 17-17s16 7 17 17" fill="#FFFDF8"/>
-        <path d="M45 35h30" stroke="#FFFDF8" stroke-width="17" stroke-linecap="round"/>
-      </svg>
-    `;
   }
 
   const Audio = (() => {

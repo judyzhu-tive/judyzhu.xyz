@@ -27,13 +27,11 @@
           <h1 id="bakery-title">Judy's Bakery</h1>
         </div>
 
-        <aside class="speaker" aria-live="polite">
-          <div id="speaker-portrait" class="speaker-portrait" aria-hidden="true"></div>
-          <div>
-            <p id="speaker-name" class="speaker-name"></p>
-            <p id="speaker-tag" class="speaker-tag"></p>
+        <div class="scene-characters" aria-hidden="true">
+          <div class="speaker-portrait">
+            <img class="mascot-sprite" src="./assets/bakery-mascot.png" alt="" decoding="async" />
           </div>
-        </aside>
+        </div>
       </div>
 
       <div class="progress" aria-label="recipe progress">
@@ -45,6 +43,12 @@
       </div>
 
       <section class="dialog" aria-live="polite">
+        <div class="dialog-head">
+          <div>
+            <p id="speaker-name" class="speaker-name"></p>
+          </div>
+          <p id="speaker-tag" class="speaker-tag"></p>
+        </div>
         <p id="dialog-text"></p>
         <span id="dialog-cursor" class="dialog-cursor"></span>
       </section>
@@ -53,6 +57,6 @@
     </section>
   </main>
 
-  <script src="bakery.js" defer></script>
+  <script src="bakery.js?v=7" defer></script>
 </body>
 </html>
