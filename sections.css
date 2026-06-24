@@ -687,6 +687,56 @@
   color: var(--mist);
 }
 
+.contact-surprise {
+  margin-top: 16px;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  color: var(--paper);
+  text-decoration: none;
+  border: 1px solid rgba(242, 244, 241, 0.18);
+  background: rgba(255, 255, 255, 0.035);
+  transition: background 0.45s var(--ease-water), transform 0.45s var(--ease-water);
+}
+.contact-surprise:hover {
+  background: rgba(232, 220, 196, 0.1);
+  transform: translateY(-2px);
+}
+.contact-surprise-mark {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: var(--ink);
+  background: var(--rice);
+}
+.contact-surprise-k {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--mist);
+}
+.contact-surprise-v {
+  display: block;
+  margin-top: 2px;
+  font-size: 15px;
+  letter-spacing: -0.005em;
+}
+.contact-surprise .arr {
+  margin-left: auto;
+  color: var(--mist);
+  transition: transform 0.45s var(--ease-water), color 0.45s var(--ease-water);
+}
+.contact-surprise:hover .arr {
+  color: var(--paper);
+  transform: translate(2px, -2px);
+}
+
 /* ——— FOOTER ——— */
 .foot {
   background: var(--ink);

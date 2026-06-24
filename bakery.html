@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Judy's Bakery | ちいさなベーカリー</title>
+  <meta name="description" content="A tiny English and Japanese bakery recipe picker with warm bread ideas." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@400;500;700;800&family=Zen+Maru+Gothic:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="bakery.css" />
+</head>
+<body>
+  <main class="bakery-shell">
+    <section class="bakery-card" aria-labelledby="bakery-title">
+      <header class="bakery-top">
+        <div class="gamebar-left">
+          <a class="home-link" href="./index.html">home</a>
+          <div class="audio-toggles" aria-label="audio controls">
+            <button id="music-btn" class="sound-btn" type="button" aria-pressed="false">
+              <span class="sound-dot"></span>
+              music
+            </button>
+            <button id="sfx-btn" class="sound-btn playing" type="button" aria-pressed="true">
+              <span class="sound-dot"></span>
+              sfx
+            </button>
+          </div>
+        </div>
+        <h1 id="bakery-title" class="gamebar-title">
+          bakery <span>パン屋</span>
+        </h1>
+        <div class="progress" aria-label="recipe progress">
+          <span class="dot progress-chip active"></span>
+          <span class="dot progress-chip"></span>
+          <span class="dot progress-chip"></span>
+          <span class="dot progress-chip"></span>
+          <span class="dot progress-chip"></span>
+        </div>
+      </header>
+
+      <div class="bakery-stage">
+        <div class="scene-characters" aria-hidden="true">
+          <span class="scene-sparkle sparkle-1">✦</span>
+          <span class="scene-sparkle sparkle-2">✦</span>
+          <span class="scene-sparkle sparkle-3">✦</span>
+          <div class="speaker-portrait">
+            <img class="mascot-sprite" src="./assets/bakery-mascot.png" alt="" decoding="async" />
+          </div>
+        </div>
+      </div>
+
+      <section class="dialog" aria-live="polite">
+        <div class="dialog-head">
+          <div>
+            <p id="speaker-name" class="speaker-name"></p>
+          </div>
+          <p id="speaker-tag" class="speaker-tag"></p>
+        </div>
+        <p id="dialog-text"></p>
+        <span id="dialog-cursor" class="dialog-cursor"></span>
+      </section>
+
+      <section id="choices" class="choices" aria-label="bakery choices"></section>
+    </section>
+  </main>
+
+  <script src="bakery.js?v=9" defer></script>
+</body>
+</html>
