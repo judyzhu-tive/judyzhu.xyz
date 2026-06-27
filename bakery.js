@@ -1022,6 +1022,8 @@
     let phraseIndex = 0;
     let musicRun = 0;
     let scene = 'intro';
+    let sfxBank = null;
+    let hasHowler = false;
 
     // Motifs are warm and pentatonic-ish; each scene gets a small recognizable
     // shape so the loop reads like a tune, not a random walk. Format per note:
@@ -1118,10 +1120,17 @@
 
     function init() {
       if (ctx) return;
-      const Ctor = window.AudioContext || window.webkitAudioContext;
-      ctx = new Ctor();
+      hasHowler = typeof window.Howl === 'function' && typeof window.Howler !== 'undefined';
+      if (hasHowler && window.Howler.ctx) {
+        window.Howler.volume(0.78);
+        ctx = window.Howler.ctx;
+      } else {
+        if (hasHowler) window.Howler.volume(0.78);
+        const Ctor = window.AudioContext || window.webkitAudioContext;
+        ctx = new Ctor();
+      }
       master = ctx.createGain();
-      master.gain.value = 0.78;
+      master.gain.value = hasHowler ? 1 : 0.78;
       master.connect(ctx.destination);
       musicBus = ctx.createGain();
       musicBus.gain.value = 0;
@@ -1139,16 +1148,142 @@
       sfxBus = ctx.createGain();
       sfxBus.gain.value = 1;
       sfxBus.connect(master);
+      if (hasHowler) buildHowlerSfx();
+      document.documentElement.dataset.audioEngine = hasHowler ? 'howler' : 'webaudio';
+      document.documentElement.dataset.audioClips = hasHowler && window.Howler ? String(window.Howler._howls.length) : '0';
     }
 
     function ready() {
       init();
+      if (hasHowler && window.Howler.ctx && window.Howler.ctx.state === 'suspended') window.Howler.ctx.resume();
       if (ctx.state === 'suspended') ctx.resume();
     }
 
     function setButton(button, on) {
       button.classList.toggle('playing', on);
       button.setAttribute('aria-pressed', String(on));
+    }
+
+    function encodeWav(samples, sampleRate) {
+      const buffer = new ArrayBuffer(44 + samples.length * 2);
+      const view = new DataView(buffer);
+
+      function writeString(offset, value) {
+        for (let i = 0; i < value.length; i += 1) view.setUint8(offset + i, value.charCodeAt(i));
+      }
+
+      writeString(0, 'RIFF');
+      view.setUint32(4, 36 + samples.length * 2, true);
+      writeString(8, 'WAVE');
+      writeString(12, 'fmt ');
+      view.setUint32(16, 16, true);
+      view.setUint16(20, 1, true);
+      view.setUint16(22, 1, true);
+      view.setUint32(24, sampleRate, true);
+      view.setUint32(28, sampleRate * 2, true);
+      view.setUint16(32, 2, true);
+      view.setUint16(34, 16, true);
+      writeString(36, 'data');
+      view.setUint32(40, samples.length * 2, true);
+
+      let offset = 44;
+      samples.forEach((sample) => {
+        const clamped = Math.max(-1, Math.min(1, sample));
+        view.setInt16(offset, clamped < 0 ? clamped * 0x8000 : clamped * 0x7fff, true);
+        offset += 2;
+      });
+
+      let binary = '';
+      const bytes = new Uint8Array(buffer);
+      const chunkSize = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunkSize) {
+        binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+      }
+      return `data:audio/wav;base64,${btoa(binary)}`;
+    }
+
+    function waveValue(type, phase) {
+      if (type === 'square') return Math.sin(phase) >= 0 ? 1 : -1;
+      if (type === 'triangle') return (2 / Math.PI) * Math.asin(Math.sin(phase));
+      if (type === 'sawtooth') return 2 * ((phase / (Math.PI * 2)) % 1) - 1;
+      return Math.sin(phase);
+    }
+
+    function makeClip(events, duration) {
+      const sampleRate = 22050;
+      const samples = new Float32Array(Math.ceil(duration * sampleRate));
+      events.forEach((event) => {
+        const start = Math.floor((event.start || 0) * sampleRate);
+        const length = Math.max(1, Math.floor(event.duration * sampleRate));
+        for (let i = 0; i < length && start + i < samples.length; i += 1) {
+          const t = i / sampleRate;
+          const attack = Math.min(0.012, event.duration * 0.28);
+          const release = Math.max(0.001, event.duration - attack);
+          const env = t < attack ? t / attack : Math.pow(Math.max(0, 1 - ((t - attack) / release)), 1.8);
+          samples[start + i] += waveValue(event.type || 'sine', Math.PI * 2 * event.freq * t) * event.volume * env;
+        }
+      });
+      return encodeWav(samples, sampleRate);
+    }
+
+    function buildHowlerSfx() {
+      if (sfxBank || !hasHowler) return;
+      const clip = (events, duration, volume = 1) => new window.Howl({
+        src: [makeClip(events, duration)],
+        html5: false,
+        preload: true,
+        volume,
+      });
+
+      sfxBank = {
+        blip: clip([{ freq: 760, duration: 0.075, volume: 0.8, type: 'triangle' }], 0.12, 0.12),
+        tick: clip([{ freq: 1400, duration: 0.03, volume: 0.55, type: 'square' }], 0.06, 0.055),
+        hover: clip([{ freq: 1050, duration: 0.05, volume: 0.42, type: 'sine' }], 0.08, 0.04),
+        chimeUp: clip([
+          { freq: 659.25, duration: 0.12, volume: 0.72, type: 'sine' },
+          { freq: 880, start: 0.055, duration: 0.16, volume: 0.58, type: 'sine' },
+        ], 0.25, 0.11),
+        chimeDown: clip([
+          { freq: 523.25, duration: 0.12, volume: 0.58, type: 'sine' },
+          { freq: 392, start: 0.055, duration: 0.16, volume: 0.54, type: 'sine' },
+        ], 0.25, 0.095),
+        swoosh: clip([
+          { freq: 440, duration: 0.18, volume: 0.42, type: 'triangle' },
+          { freq: 660, start: 0.045, duration: 0.18, volume: 0.5, type: 'triangle' },
+          { freq: 990, start: 0.09, duration: 0.18, volume: 0.55, type: 'triangle' },
+        ], 0.36, 0.12),
+        fanfare: clip([
+          { freq: 523.25, duration: 0.2, volume: 0.72, type: 'sine' },
+          { freq: 659.25, start: 0.08, duration: 0.22, volume: 0.72, type: 'sine' },
+          { freq: 783.99, start: 0.16, duration: 0.23, volume: 0.68, type: 'sine' },
+          { freq: 1046.5, start: 0.25, duration: 0.36, volume: 0.68, type: 'sine' },
+        ], 0.72, 0.14),
+        accentOpen: clip([
+          { freq: 523.25, duration: 0.18, volume: 0.46, type: 'triangle' },
+          { freq: 659.25, start: 0.055, duration: 0.18, volume: 0.42, type: 'triangle' },
+          { freq: 783.99, start: 0.11, duration: 0.22, volume: 0.38, type: 'sine' },
+        ], 0.4, 0.09),
+        accentSurprise: clip([
+          { freq: 659.25, duration: 0.14, volume: 0.46, type: 'triangle' },
+          { freq: 880, start: 0.05, duration: 0.14, volume: 0.5, type: 'triangle' },
+          { freq: 1174.66, start: 0.1, duration: 0.2, volume: 0.44, type: 'sine' },
+        ], 0.38, 0.105),
+        accentReveal: clip([
+          { freq: 523.25, duration: 0.2, volume: 0.45, type: 'sine' },
+          { freq: 659.25, start: 0.065, duration: 0.2, volume: 0.45, type: 'sine' },
+          { freq: 783.99, start: 0.13, duration: 0.22, volume: 0.45, type: 'sine' },
+          { freq: 1046.5, start: 0.22, duration: 0.28, volume: 0.42, type: 'sine' },
+        ], 0.56, 0.11),
+      };
+    }
+
+    function howlPlay(name, rate = 1) {
+      if (!sfxOn) return false;
+      if (!ctx) ready();
+      if (!hasHowler || !sfxBank || !sfxBank[name]) return false;
+      const id = sfxBank[name].play();
+      sfxBank[name].rate(rate, id);
+      return true;
     }
 
     function tone(freq, duration = 0.08, volume = 0.04, type = 'sine', bus = sfxBus) {
@@ -1310,36 +1445,46 @@
     function toggleSfx() {
       sfxOn = !sfxOn;
       setButton($sfxBtn, sfxOn);
-      if (sfxOn) effect(880, 0.08, 0.045, 'triangle');
+      if (sfxOn) {
+        ready();
+        if (!howlPlay('chimeUp')) effect(880, 0.08, 0.045, 'triangle');
+      }
     }
 
     function blip(freq = 760) {
+      if (freq === 760 && howlPlay('blip')) return;
       effect(freq, 0.07, 0.06, 'triangle');
     }
 
     function chime(up) {
+      if (howlPlay(up ? 'chimeUp' : 'chimeDown')) return;
       effect(up ? 659.25 : 392, 0.11, 0.055, 'sine');
       setTimeout(() => effect(up ? 880 : 293.66, 0.14, 0.045, 'sine'), 55);
     }
 
     function swoosh() {
+      if (howlPlay('swoosh')) return;
       [440, 660, 990].forEach((freq, index) => setTimeout(() => effect(freq, 0.12, 0.045, 'triangle'), index * 45));
     }
 
     function tick() {
+      if (howlPlay('tick')) return;
       effect(1400, 0.025, 0.015, 'square');
     }
 
     function hover() {
-      if (!ctx || !sfxOn) return;
+      if (!sfxOn) return;
+      ready();
       const now = ctx.currentTime;
       if (now - lastHover < 0.12) return;
       lastHover = now;
+      if (howlPlay('hover')) return;
       tone(1050, 0.05, 0.007, 'sine', sfxBus);
     }
 
     function fanfare() {
       accent('reveal');
+      if (howlPlay('fanfare')) return;
       [523.25, 659.25, 783.99, 1046.5].forEach((freq, index) => {
         setTimeout(() => effect(freq, 0.22, 0.07, 'sine'), index * 80);
       });
@@ -1348,6 +1493,7 @@
     function accent(kind) {
       if (!musicOn) return;
       ready();
+      if (howlPlay(kind === 'surprise' ? 'accentSurprise' : kind === 'reveal' ? 'accentReveal' : 'accentOpen')) return;
       const token = musicRun;
       const notes = accents[kind] || accents.open;
       notes.forEach((freq, index) => {
