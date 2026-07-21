@@ -1,96 +1,328 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>judy zhu — 星颖</title>
-  <meta name="description" content="judy zhu — still water, moving light. oil, lens, tea &amp; sound." />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500&family=Noto+Serif+JP:wght@300;400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <link href="https://api.fontshare.com/v2/css?f[]=neue-montreal@400,500&display=swap" rel="stylesheet" />
-
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="sections.css" />
-
-  <template id="__bundler_thumbnail">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <rect width="200" height="200" fill="#D4DED7"/>
-      <circle cx="100" cy="100" r="55" fill="none" stroke="#2A3A3A" stroke-width="1.5"/>
-      <circle cx="100" cy="100" r="40" fill="none" stroke="#6B8784" stroke-width="1"/>
-      <circle cx="100" cy="100" r="22" fill="none" stroke="#B4C4BC" stroke-width="0.8"/>
-      <text x="100" y="108" font-family="serif" font-size="22" fill="#2A3A3A" text-anchor="middle">朱</text>
-    </svg>
-  </template>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Judy Zhu — books, music, and oil paintings</title>
+  <meta
+    name="description"
+    content="Judy Zhu's small corner of the internet: recent reads, music, oil paintings, and a tiny door to Judy's Bakery.">
+  <meta name="theme-color" content="#f4f2e9">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=20260721b">
 </head>
 <body>
-  <!-- Fixed nav -->
-  <nav class="nav">
-    <a href="#pond" class="nav-mark">
-      <span class="latin tc">judy zhu</span>
-      <span class="cn-whisper">星颖</span>
+  <a class="skip-link" href="#main">Skip to the good stuff</a>
+
+  <header class="site-header">
+    <a class="site-name" href="#top" aria-label="Judy Zhu, home">Judy Zhu</a>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a href="#now">Currently</a>
+      <a href="#paintings">Paintings</a>
+      <a href="#listening">Listening</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="intro" id="top" aria-labelledby="intro-title">
+      <div class="intro-copy">
+        <p class="hello-mark">Hello, I’m</p>
+        <h1 id="intro-title">Judy.</h1>
+        <p class="intro-lede">
+          I grew up in Suzhou and now live in Boston, where I spend my days making software.
+          Away from the screen, I’m usually painting in oil, baking something, reading, or making another coffee.
+        </p>
+        <p class="intro-note">This is a small shelf for the things I keep coming back to.</p>
+      </div>
+
+      <figure class="hero-art">
+        <picture>
+          <source
+            srcset="assets/paintings/balloon-sky-800.webp 800w, assets/paintings/balloon-sky-1600.webp 1600w"
+            sizes="(max-width: 760px) 92vw, 44vw"
+            type="image/webp">
+          <img
+            src="assets/paintings/balloon-sky-1600.webp"
+            width="1600"
+            height="1200"
+            alt="Oil painting of colorful hot-air balloons and two balloon-headed figures beneath a pink sky."
+            fetchpriority="high">
+        </picture>
+        <figcaption>One afternoon with oil paint and a pink sky.</figcaption>
+      </figure>
+    </section>
+
+    <section class="section now" id="now" aria-labelledby="now-title">
+      <div class="section-heading">
+        <p class="section-label">Notes from lately</p>
+        <h2 id="now-title">Currently</h2>
+        <p>Updated July 2026.</p>
+      </div>
+
+      <div class="now-grid">
+        <article class="now-item reading-note">
+          <h3>Reading</h3>
+          <ol class="book-list">
+            <li>
+              <cite>The Emperor of Gladness</cite>
+              <span>Ocean Vuong</span>
+            </li>
+            <li>
+              <cite>Dreams</cite>
+              <span>C. G. Jung</span>
+            </li>
+            <li>
+              <cite>The Future Perfect</cite>
+              <span>Cay Kim</span>
+            </li>
+          </ol>
+        </article>
+
+        <article class="now-item">
+          <h3>Making</h3>
+          <p>I’ve been painting slowly in oil, leaving the easels, gardens, and studio corners in the photographs.</p>
+        </article>
+
+        <article class="now-item">
+          <h3>Listening</h3>
+          <p><cite>bossumer</cite> is in rotation — songs I’ve gathered and want to keep close for a while.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section paintings" id="paintings" aria-labelledby="paintings-title">
+      <div class="section-heading paintings-heading">
+        <p class="section-label">From the easel</p>
+        <h2 id="paintings-title">Oil paintings</h2>
+        <p>Five small glimpses from the studio, mess included.</p>
+      </div>
+
+      <div class="painting-grid">
+        <figure class="painting">
+          <picture>
+            <source
+              srcset="assets/paintings/garden-by-water-800.webp 800w, assets/paintings/garden-by-water-1600.webp 1600w"
+              sizes="(max-width: 700px) 44vw, 18vw"
+              type="image/webp">
+            <img
+              src="assets/paintings/garden-by-water-1600.webp"
+              width="1200"
+              height="1600"
+              alt="Oil painting of red-roofed houses, flowers, and green islands beside blue water."
+              loading="lazy"
+              decoding="async">
+          </picture>
+          <figcaption>Garden by water</figcaption>
+        </figure>
+
+        <figure class="painting">
+          <picture>
+            <source
+              srcset="assets/paintings/sunflower-blue-800.webp 800w, assets/paintings/sunflower-blue-1600.webp 1600w"
+              sizes="(max-width: 700px) 44vw, 18vw"
+              type="image/webp">
+            <img
+              src="assets/paintings/sunflower-blue-1600.webp"
+              width="1200"
+              height="1600"
+              alt="Oil painting of a yellow sunflower against a bright blue background, resting on a studio easel."
+              loading="lazy"
+              decoding="async">
+          </picture>
+          <figcaption>Sunflower on blue</figcaption>
+        </figure>
+
+        <figure class="painting">
+          <picture>
+            <source
+              srcset="assets/paintings/betta-fish-800.webp 800w, assets/paintings/betta-fish-1600.webp 1600w"
+              sizes="(max-width: 700px) 44vw, 18vw"
+              type="image/webp">
+            <img
+              src="assets/paintings/betta-fish-1600.webp"
+              width="1600"
+              height="1066"
+              alt="Oil painting of a pale betta fish with flowing lavender, blue, and yellow fins on a dark canvas."
+              loading="lazy"
+              decoding="async">
+          </picture>
+          <figcaption>Betta fish</figcaption>
+        </figure>
+
+        <figure class="painting">
+          <picture>
+            <source
+              srcset="assets/paintings/palm-lagoon-800.webp 800w, assets/paintings/palm-lagoon-1600.webp 1600w"
+              sizes="(max-width: 700px) 44vw, 18vw"
+              type="image/webp">
+            <img
+              src="assets/paintings/palm-lagoon-1600.webp"
+              width="1600"
+              height="1066"
+              alt="Oil painting from the bow of a boat facing palm trees reflected in still water at sunset."
+              loading="lazy"
+              decoding="async">
+          </picture>
+          <figcaption>Palm lagoon</figcaption>
+        </figure>
+
+        <figure class="painting">
+          <picture>
+            <source
+              srcset="assets/paintings/balloon-sky-800.webp 800w, assets/paintings/balloon-sky-1600.webp 1600w"
+              sizes="(max-width: 700px) 44vw, 18vw"
+              type="image/webp">
+            <img
+              src="assets/paintings/balloon-sky-1600.webp"
+              width="1600"
+              height="1200"
+              alt="Oil painting of colorful hot-air balloons and two balloon-headed figures beneath a pink sky."
+              loading="lazy"
+              decoding="async">
+          </picture>
+          <figcaption>Balloon sky</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section listening" id="listening" aria-labelledby="listening-title">
+      <div class="section-heading listening-heading">
+        <p class="section-label">At the moment</p>
+        <h2 id="listening-title">The record shelf</h2>
+        <p>A few tracks from <cite>bossumer</cite>, the playlist I’m keeping close at the moment.</p>
+      </div>
+
+      <div class="record-shelf">
+        <a
+          class="record-card"
+          href="https://open.spotify.com/track/0vaqZ9QxzfoyI1K4l3DbJm"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Listen to クランベリーとパンケーキ by Kenshi Yonezu on Spotify">
+          <img
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0234cb7e7467b07d86db350458"
+            width="300"
+            height="300"
+            alt="Cover artwork for クランベリーとパンケーキ"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer">
+          <span class="track-title">クランベリーとパンケーキ</span>
+          <span class="track-artist">Kenshi Yonezu</span>
+        </a>
+
+        <a
+          class="record-card"
+          href="https://open.spotify.com/track/6mLkClPmHX9lEVcpRCxmJR"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Listen to Free - Love Meditation Mix by John Lennon on Spotify">
+          <img
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02e73340f41f93bf798e06a9d9"
+            width="300"
+            height="300"
+            alt="Cover artwork for Free - Love Meditation Mix"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer">
+          <span class="track-title">Free - Love Meditation Mix</span>
+          <span class="track-artist">John Lennon</span>
+        </a>
+
+        <a
+          class="record-card"
+          href="https://open.spotify.com/track/2b2hdGOV9Cq3azX0FmgzTt"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Listen to Seiko Watch by Sage on Spotify">
+          <img
+            src="https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e025ced622ebb550a588076ec45"
+            width="300"
+            height="300"
+            alt="Cover artwork for Seiko Watch"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer">
+          <span class="track-title">Seiko Watch</span>
+          <span class="track-artist">Sage.</span>
+        </a>
+
+        <a
+          class="record-card"
+          href="https://open.spotify.com/track/2zkSaGlk99tHmJsQkhwv0M"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Listen to 美妙生活 by Yoga Lin on Spotify">
+          <img
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e027bec0a88925f7bbccb75b792"
+            width="300"
+            height="300"
+            alt="Cover artwork for 美妙生活"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer">
+          <span class="track-title">美妙生活</span>
+          <span class="track-artist">Yoga Lin</span>
+        </a>
+
+        <a
+          class="record-card"
+          href="https://open.spotify.com/track/15vg0v6tZ1y8aZfpdz2KRY"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Listen to CONSTANTLY by Tiffany Day and slayr on Spotify">
+          <img
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02dd5d528910b3add36d36e39f"
+            width="300"
+            height="300"
+            alt="Cover artwork for CONSTANTLY"
+            loading="lazy"
+            decoding="async"
+            referrerpolicy="no-referrer">
+          <span class="track-title">CONSTANTLY</span>
+          <span class="track-artist">Tiffany Day, slayr</span>
+        </a>
+      </div>
+
+      <iframe
+        class="playlist-embed"
+        src="https://open.spotify.com/embed/playlist/12gyz1hXTmPYQWO5a0w1ov?utm_source=generator&amp;si=092d3c8109d14977"
+        height="152"
+        title="bossumer playlist on Spotify"
+        allowfullscreen
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Judy Zhu</p>
+    <nav class="social-links" aria-label="Find Judy elsewhere">
+      <a href="https://www.linkedin.com/in/xingyzhu/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.instagram.com/judyfruitee/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+      </a>
+      <a href="https://xingyzhu.substack.com/" target="_blank" rel="noopener noreferrer" aria-label="Substack">
+        <i class="fa-solid fa-rss" aria-hidden="true"></i>
+      </a>
+      <a href="https://github.com/Starswheat" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <i class="fa-brands fa-github" aria-hidden="true"></i>
+      </a>
+      <a href="https://open.spotify.com/user/31cxzsdwufhq4fim46aafu7zbfvq" target="_blank" rel="noopener noreferrer" aria-label="Spotify">
+        <i class="fa-brands fa-spotify" aria-hidden="true"></i>
+      </a>
+    </nav>
+    <a class="bakery-door" href="./bakery.html" aria-label="Enter Judy's Bakery">
+      <img src="assets/bakery-mascot.png" width="58" height="58" alt="">
+      <span>
+        <small>Tiny side door</small>
+        Judy's Bakery
+      </span>
     </a>
-    <div class="nav-links">
-      <a href="#life">life</a>
-      <a href="#work">work</a>
-      <a href="#sound">sound</a>
-      <a href="#writing">writing</a>
-      <a href="./bakery.html">bakery</a>
-      <a href="#contact">contact</a>
-    </div>
-    <span class="nav-status">
-      <span class="dot"></span>
-      <span class="label">open to projects</span>
-    </span>
-  </nav>
-
-  <div id="root" class="page"></div>
-
-  <!-- Tweaks panel target -->
-  <div id="tweaks-root"></div>
-
-  <!-- Pond canvas script (vanilla) -->
-  <script src="pond.js" defer></script>
-
-  <!-- React -->
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-
-  <!-- Tweaks defaults (editable by host) -->
-  <script>
-    window.TWEAKS = /*EDITMODE-BEGIN*/{
-      "motionIntensity": 0.65,
-      "palette": "sage",
-      "heroConcept": "ripples",
-      "showChineseProminently": true,
-      "spotifyPlaylistId": "37i9dQZF1DX4sWSpwq3LiO"
-    }/*EDITMODE-END*/;
-  </script>
-
-  <script type="text/babel" src="sections-1.jsx"></script>
-  <script type="text/babel" src="sections-2.jsx"></script>
-  <script type="text/babel" src="sections-3.jsx"></script>
-  <script type="text/babel" src="tweaks.jsx"></script>
-
-  <script type="text/babel">
-    const { createRoot } = ReactDOM;
-    function App() {
-      return (
-        <>
-          <Hero />
-          <Life />
-          <Work />
-          <Sound />
-          <Writing />
-          <Contact />
-          <Footer />
-        </>
-      );
-    }
-    createRoot(document.getElementById('root')).render(<App />);
-    createRoot(document.getElementById('tweaks-root')).render(<Tweaks />);
-  </script>
+  </footer>
 </body>
 </html>
