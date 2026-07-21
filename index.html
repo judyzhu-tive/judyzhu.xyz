@@ -8,7 +8,10 @@
     name="description"
     content="Judy Zhu's small corner of the internet: recent reads, music, oil paintings, and a tiny door to Judy's Bakery.">
   <meta name="theme-color" content="#f4f2e9">
-  <link rel="stylesheet" href="styles.css?v=20260721">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=20260721b">
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to the good stuff</a>
@@ -16,23 +19,22 @@
   <header class="site-header">
     <a class="site-name" href="#top" aria-label="Judy Zhu, home">Judy Zhu</a>
     <nav class="site-nav" aria-label="Primary navigation">
-      <a href="#now">Now</a>
+      <a href="#now">Currently</a>
       <a href="#paintings">Paintings</a>
       <a href="#listening">Listening</a>
-      <a href="#hello">Hello</a>
     </nav>
   </header>
 
   <main id="main">
     <section class="intro" id="top" aria-labelledby="intro-title">
       <div class="intro-copy">
-        <p class="hello-mark">Hello, I am</p>
+        <p class="hello-mark">Hello, I’m</p>
         <h1 id="intro-title">Judy.</h1>
         <p class="intro-lede">
-          I grew up in Suzhou and live in Boston now. By day I make software.
-          Away from the screen, I paint in oil, bake, read, and make coffee.
+          I grew up in Suzhou and now live in Boston, where I spend my days making software.
+          Away from the screen, I’m usually painting in oil, baking something, reading, or making another coffee.
         </p>
-        <p class="intro-note">Not a résumé. Just a small shelf of things I like.</p>
+        <p class="intro-note">This is a small shelf for the things I keep coming back to.</p>
       </div>
 
       <figure class="hero-art">
@@ -54,8 +56,8 @@
 
     <section class="section now" id="now" aria-labelledby="now-title">
       <div class="section-heading">
-        <p class="section-label">A small README</p>
-        <h2 id="now-title">Right now</h2>
+        <p class="section-label">Notes from lately</p>
+        <h2 id="now-title">Currently</h2>
         <p>Updated July 2026.</p>
       </div>
 
@@ -80,12 +82,12 @@
 
         <article class="now-item">
           <h3>Making</h3>
-          <p>Oil paintings, photographed with the easels, gardens, and studio corners left in the frame.</p>
+          <p>I’ve been painting slowly in oil, leaving the easels, gardens, and studio corners in the photographs.</p>
         </article>
 
         <article class="now-item">
           <h3>Listening</h3>
-          <p>A calm piano playlist. Its first five covers are gathered on the record shelf below.</p>
+          <p><cite>bossumer</cite> is in rotation — songs I’ve gathered and want to keep close for a while.</p>
         </article>
       </div>
     </section>
@@ -94,15 +96,15 @@
       <div class="section-heading paintings-heading">
         <p class="section-label">From the easel</p>
         <h2 id="paintings-title">Oil paintings</h2>
-        <p>Five studio snapshots, mess included.</p>
+        <p>Five small glimpses from the studio, mess included.</p>
       </div>
 
       <div class="painting-grid">
-        <figure class="painting painting-tall">
+        <figure class="painting">
           <picture>
             <source
               srcset="assets/paintings/garden-by-water-800.webp 800w, assets/paintings/garden-by-water-1600.webp 1600w"
-              sizes="(max-width: 760px) 92vw, 42vw"
+              sizes="(max-width: 700px) 44vw, 18vw"
               type="image/webp">
             <img
               src="assets/paintings/garden-by-water-1600.webp"
@@ -115,11 +117,11 @@
           <figcaption>Garden by water</figcaption>
         </figure>
 
-        <figure class="painting painting-tall">
+        <figure class="painting">
           <picture>
             <source
               srcset="assets/paintings/sunflower-blue-800.webp 800w, assets/paintings/sunflower-blue-1600.webp 1600w"
-              sizes="(max-width: 760px) 92vw, 42vw"
+              sizes="(max-width: 700px) 44vw, 18vw"
               type="image/webp">
             <img
               src="assets/paintings/sunflower-blue-1600.webp"
@@ -132,11 +134,11 @@
           <figcaption>Sunflower on blue</figcaption>
         </figure>
 
-        <figure class="painting painting-wide">
+        <figure class="painting">
           <picture>
             <source
               srcset="assets/paintings/betta-fish-800.webp 800w, assets/paintings/betta-fish-1600.webp 1600w"
-              sizes="(max-width: 760px) 92vw, 88vw"
+              sizes="(max-width: 700px) 44vw, 18vw"
               type="image/webp">
             <img
               src="assets/paintings/betta-fish-1600.webp"
@@ -149,11 +151,11 @@
           <figcaption>Betta fish</figcaption>
         </figure>
 
-        <figure class="painting painting-wide">
+        <figure class="painting">
           <picture>
             <source
               srcset="assets/paintings/palm-lagoon-800.webp 800w, assets/paintings/palm-lagoon-1600.webp 1600w"
-              sizes="(max-width: 760px) 92vw, 88vw"
+              sizes="(max-width: 700px) 44vw, 18vw"
               type="image/webp">
             <img
               src="assets/paintings/palm-lagoon-1600.webp"
@@ -166,11 +168,11 @@
           <figcaption>Palm lagoon</figcaption>
         </figure>
 
-        <figure class="painting painting-wide painting-last">
+        <figure class="painting">
           <picture>
             <source
               srcset="assets/paintings/balloon-sky-800.webp 800w, assets/paintings/balloon-sky-1600.webp 1600w"
-              sizes="(max-width: 760px) 92vw, 88vw"
+              sizes="(max-width: 700px) 44vw, 18vw"
               type="image/webp">
             <img
               src="assets/paintings/balloon-sky-1600.webp"
@@ -187,121 +189,133 @@
 
     <section class="section listening" id="listening" aria-labelledby="listening-title">
       <div class="section-heading listening-heading">
-        <p class="section-label">On the turntable</p>
+        <p class="section-label">At the moment</p>
         <h2 id="listening-title">The record shelf</h2>
-        <p>Five tracks from the Spotify playlist that was already playing here.</p>
+        <p>A few tracks from <cite>bossumer</cite>, the playlist I’m keeping close at the moment.</p>
       </div>
 
       <div class="record-shelf">
         <a
           class="record-card"
-          href="https://open.spotify.com/track/1zTqMY0pncDuHkLsQp9JHr"
+          href="https://open.spotify.com/track/0vaqZ9QxzfoyI1K4l3DbJm"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Listen to Ryos by Xaverius Love on Spotify">
+          aria-label="Listen to クランベリーとパンケーキ by Kenshi Yonezu on Spotify">
           <img
-            src="https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02b9cfcb8963f05335a2d42fff"
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e0234cb7e7467b07d86db350458"
             width="300"
             height="300"
-            alt="Cover artwork for Ryos"
+            alt="Cover artwork for クランベリーとパンケーキ"
             loading="lazy"
             decoding="async"
             referrerpolicy="no-referrer">
-          <span class="track-title">Ryos</span>
-          <span class="track-artist">Xaverius Love</span>
+          <span class="track-title">クランベリーとパンケーキ</span>
+          <span class="track-artist">Kenshi Yonezu</span>
         </a>
 
         <a
           class="record-card"
-          href="https://open.spotify.com/track/5XaDdPqb8MTApJ5kqReqgg"
+          href="https://open.spotify.com/track/6mLkClPmHX9lEVcpRCxmJR"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Listen to New Light by Dalby on Spotify">
+          aria-label="Listen to Free - Love Meditation Mix by John Lennon on Spotify">
           <img
-            src="https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02bc5c02266d20753c79831747"
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02e73340f41f93bf798e06a9d9"
             width="300"
             height="300"
-            alt="Cover artwork for New Light"
+            alt="Cover artwork for Free - Love Meditation Mix"
             loading="lazy"
             decoding="async"
             referrerpolicy="no-referrer">
-          <span class="track-title">New Light</span>
-          <span class="track-artist">Dalby</span>
+          <span class="track-title">Free - Love Meditation Mix</span>
+          <span class="track-artist">John Lennon</span>
         </a>
 
         <a
           class="record-card"
-          href="https://open.spotify.com/track/6niIx0QbmKwJFk5H2vv9DT"
+          href="https://open.spotify.com/track/2b2hdGOV9Cq3azX0FmgzTt"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Listen to Light in Silence by Isidorus on Spotify">
+          aria-label="Listen to Seiko Watch by Sage on Spotify">
           <img
-            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e028fa6406a49d75a50bc8741a8"
+            src="https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e025ced622ebb550a588076ec45"
             width="300"
             height="300"
-            alt="Cover artwork for Light in Silence"
+            alt="Cover artwork for Seiko Watch"
             loading="lazy"
             decoding="async"
             referrerpolicy="no-referrer">
-          <span class="track-title">Light in Silence</span>
-          <span class="track-artist">Isidorus</span>
+          <span class="track-title">Seiko Watch</span>
+          <span class="track-artist">Sage.</span>
         </a>
 
         <a
           class="record-card"
-          href="https://open.spotify.com/track/1sMKl4w5GEbLJaSjlIy75I"
+          href="https://open.spotify.com/track/2zkSaGlk99tHmJsQkhwv0M"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Listen to Still Unbroken by Eternalistic on Spotify">
+          aria-label="Listen to 美妙生活 by Yoga Lin on Spotify">
           <img
-            src="https://image-cdn-ak.spotifycdn.com/image/ab67616d00001e02fe21fcbd774b6a2b8a6891d0"
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e027bec0a88925f7bbccb75b792"
             width="300"
             height="300"
-            alt="Cover artwork for Still Unbroken"
+            alt="Cover artwork for 美妙生活"
             loading="lazy"
             decoding="async"
             referrerpolicy="no-referrer">
-          <span class="track-title">Still Unbroken</span>
-          <span class="track-artist">Eternalistic</span>
+          <span class="track-title">美妙生活</span>
+          <span class="track-artist">Yoga Lin</span>
         </a>
 
         <a
           class="record-card"
-          href="https://open.spotify.com/track/12CHYifZr1nmh6andRykpi"
+          href="https://open.spotify.com/track/15vg0v6tZ1y8aZfpdz2KRY"
           target="_blank"
           rel="noopener noreferrer"
-          aria-label="Listen to Prato Di Girasoli by Nascondiglio on Spotify">
+          aria-label="Listen to CONSTANTLY by Tiffany Day and slayr on Spotify">
           <img
-            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02565fb2d8e53b422cdd981da0"
+            src="https://image-cdn-fa.spotifycdn.com/image/ab67616d00001e02dd5d528910b3add36d36e39f"
             width="300"
             height="300"
-            alt="Cover artwork for Prato Di Girasoli"
+            alt="Cover artwork for CONSTANTLY"
             loading="lazy"
             decoding="async"
             referrerpolicy="no-referrer">
-          <span class="track-title">Prato Di Girasoli</span>
-          <span class="track-artist">Nascondiglio</span>
+          <span class="track-title">CONSTANTLY</span>
+          <span class="track-artist">Tiffany Day, slayr</span>
         </a>
       </div>
 
-      <a
-        class="playlist-link"
-        href="https://open.spotify.com/playlist/37i9dQZF1DX4sWSpwq3LiO"
-        target="_blank"
-        rel="noopener noreferrer"
-      >Open the full Peaceful Piano playlist on Spotify</a>
-    </section>
-
-    <section class="section hello" id="hello" aria-labelledby="hello-title">
-      <p class="section-label">One last thing</p>
-      <h2 id="hello-title">Say hello.</h2>
-      <p>Notes, book recommendations, and songs for the shelf are all welcome.</p>
-      <a class="email-link" href="mailto:hello@judyzhu.xyz">hello@judyzhu.xyz</a>
+      <iframe
+        class="playlist-embed"
+        src="https://open.spotify.com/embed/playlist/12gyz1hXTmPYQWO5a0w1ov?utm_source=generator&amp;si=092d3c8109d14977"
+        height="152"
+        title="bossumer playlist on Spotify"
+        allowfullscreen
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy"></iframe>
     </section>
   </main>
 
   <footer class="site-footer">
     <p>© 2026 Judy Zhu</p>
+    <nav class="social-links" aria-label="Find Judy elsewhere">
+      <a href="https://www.linkedin.com/in/xingyzhu/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
+        <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+      </a>
+      <a href="https://www.instagram.com/judyfruitee/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        <i class="fa-brands fa-instagram" aria-hidden="true"></i>
+      </a>
+      <a href="https://xingyzhu.substack.com/" target="_blank" rel="noopener noreferrer" aria-label="Substack">
+        <i class="fa-solid fa-rss" aria-hidden="true"></i>
+      </a>
+      <a href="https://github.com/Starswheat" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        <i class="fa-brands fa-github" aria-hidden="true"></i>
+      </a>
+      <a href="https://open.spotify.com/user/31cxzsdwufhq4fim46aafu7zbfvq" target="_blank" rel="noopener noreferrer" aria-label="Spotify">
+        <i class="fa-brands fa-spotify" aria-hidden="true"></i>
+      </a>
+    </nav>
     <a class="bakery-door" href="./bakery.html" aria-label="Enter Judy's Bakery">
       <img src="assets/bakery-mascot.png" width="58" height="58" alt="">
       <span>
